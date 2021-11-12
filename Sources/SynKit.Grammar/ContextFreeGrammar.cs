@@ -59,7 +59,7 @@ public class ContextFreeGrammar
             {
                 if (!first) result.Append(' ', leftWithArrow.Length - 2).Append("| ");
                 first = false;
-                if (right.Count == 0) result.Append("ε");
+                if (right.Count == 0) result.Append('ε');
                 else result.AppendJoin(" ", right);
                 result.AppendLine();
             }
@@ -168,10 +168,11 @@ public class ContextFreeGrammar
 
     private Dictionary<Symbol, HashSet<Symbol>> CalculateFirstSets()
     {
-        var result = new Dictionary<Symbol, HashSet<Symbol>>();
-
-        // Special case, # is not in the grammar
-        result[Symbol.Terminal.NotInGrammar] = new() { Symbol.Terminal.NotInGrammar };
+        var result = new Dictionary<Symbol, HashSet<Symbol>>
+        {
+            // Special case, # is not in the grammar
+            [Symbol.Terminal.NotInGrammar] = new() { Symbol.Terminal.NotInGrammar }
+        };
 
         // For all terminals X, FIRST(X) = { X }
         foreach (var t in this.Terminals) result[t] = new() { t };
