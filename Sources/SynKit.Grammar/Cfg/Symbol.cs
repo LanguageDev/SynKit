@@ -1,25 +1,25 @@
-namespace SynKit.Grammar;
+namespace SynKit.Grammar.Cfg;
 
 /// <summary>
 /// Represents a symbol that can appear in a context-free grammar.
 /// </summary>
 public abstract record Symbol
 {
+    private sealed class Marker
+    {
+        private readonly string text;
+
+        public Marker(string text) => this.text = text;
+
+        public override string ToString() => this.text;
+    }
+
     /// <summary>
     /// Represents a terminal symbol.
     /// </summary>
     /// <param name="Value">The value identifying the terminal.</param>
     public sealed record Terminal(object Value) : Symbol
     {
-        private class Marker
-        {
-            private readonly string text;
-
-            public Marker(string text) => this.text = text;
-
-            public override string ToString() => this.text;
-        }
-
         /// <summary>
         /// An end-of-input marker.
         /// </summary>
@@ -42,6 +42,12 @@ public abstract record Symbol
     {
         /// <inheritdoc/>
         public override string ToString() => this.Value.ToString() ?? "null";
+
+        /// <summary>
+        /// Creates a fresh nonterminal symbol from this one.
+        /// </summary>
+        /// <returns>A nonterminal, that is different from this.</returns>
+        public Nonterminal Fresh() => new(new Marker($"{this.Value}'"));
     }
 
     /// <summary>

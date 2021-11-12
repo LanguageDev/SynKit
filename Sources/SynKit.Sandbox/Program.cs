@@ -1,6 +1,5 @@
 
-
-using SynKit.Grammar;
+using SynKit.Grammar.Cfg;
 
 var g = new ContextFreeGrammar();
 g.AddProduction(new(new("S"), new[] { new Symbol.Terminal("a"), new Symbol.Terminal("b") }));

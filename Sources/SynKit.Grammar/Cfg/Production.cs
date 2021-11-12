@@ -1,4 +1,4 @@
-namespace SynKit.Grammar;
+namespace SynKit.Grammar.Cfg;
 
 /// <summary>
 /// Represents a single production rule in a context-free grammar.

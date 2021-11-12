@@ -1,12 +1,12 @@
 using System.Collections.Immutable;
 using System.Text;
 
-namespace SynKit.Grammar;
+namespace SynKit.Grammar.Cfg;
 
 /// <summary>
 /// Represents a context-free grammar with a set of production rules.
 /// </summary>
-public class ContextFreeGrammar
+public sealed class ContextFreeGrammar
 {
     /// <summary>
     /// All terminals in this grammar.
@@ -106,6 +106,18 @@ public class ContextFreeGrammar
                 _ => throw new ArgumentException($"Unknown symbol {s} in production.", nameof(production)),
             };
         }
+    }
+
+    /// <summary>
+    /// Augments the start symbol, meaning that it is replaced with a new, fresh symbol, so it is not used recursively.
+    /// </summary>
+    public void AugmentStartSymbol()
+    {
+        if (this.StartSymbol is null) throw new InvalidOperationException("Can't augment the start symbol without specifying it.");
+
+        var oldStart = this.StartSymbol;
+        this.StartSymbol = this.StartSymbol.Fresh();
+        this.AddProduction(new(this.StartSymbol, new[] { oldStart }));
     }
 
     /// <summary>
