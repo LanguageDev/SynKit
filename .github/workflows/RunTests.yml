@@ -32,4 +32,5 @@ jobs:
         dotnet build -c release
     - name: Run tests
       run: |
+        cd Sources
         dotnet test
