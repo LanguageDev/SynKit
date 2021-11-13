@@ -1,5 +1,7 @@
 using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Lr;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace SynKit.Grammar.Tests;
@@ -49,5 +51,46 @@ internal class TestUtils
             }
         }
         return result;
+    }
+
+    public static Production ParseProduction(ContextFreeGrammar cfg, string text)
+    {
+        var parts = text.Split("->");
+        var left = new Symbol.Nonterminal(parts[0].Trim());
+        var rightParts = parts[1].Trim().Split(" ").Select(p => p.Trim());
+        var right = new List<Symbol>();
+        foreach (var part in rightParts)
+        {
+            right.Add(cfg.Nonterminals.Contains(new(part)) ? new Symbol.Nonterminal(part) : new Symbol.Terminal(part));
+        }
+        return new(left, right);
+    }
+
+    public static Lr0Item ParseLr0Item(ContextFreeGrammar cfg, string text)
+    {
+        var fakeProd = ParseProduction(cfg, text);
+        var cursor = fakeProd.Right
+            .Select((r, i) => (Symbol: r, Index: i))
+            .Where(p => p.Symbol is Symbol.Terminal t && t.Value.Equals("_"))
+            .Select(p => p.Index)
+            .First();
+        var right = fakeProd.Right.ToList();
+        right.RemoveAt(cursor);
+        return new(new(fakeProd.Left, right), cursor);
+    }
+
+    public static LalrItem ParseLalrItem(ContextFreeGrammar cfg, string text)
+    {
+        var parts = text.Split(", ");
+        var lr0 = ParseLr0Item(cfg, parts[0]);
+        var lookaheads = parts[1].Split("/").Select(t => t.Trim() == "$" ? Symbol.Terminal.EndOfInput : new Symbol.Terminal(t.Trim()));
+        return new(lr0.Production, lr0.Cursor, lookaheads.ToHashSet());
+    }
+
+    public static ClrItem ParseClrItem(ContextFreeGrammar cfg, string text)
+    {
+        var lalr = ParseLalrItem(cfg, text);
+        Debug.Assert(lalr.Lookaheads.Count == 1, "LR(1) items should have exactly one lookahead");
+        return new(lalr.Production, lalr.Cursor, lalr.Lookaheads.First());
     }
 }

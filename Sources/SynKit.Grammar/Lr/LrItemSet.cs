@@ -9,6 +9,9 @@ public sealed record LrItemSet<TItem>(IReadOnlySet<TItem> Items)
     where TItem : ILrItem
 {
     /// <inheritdoc/>
+    public override string ToString() => string.Join("\n", this.Items);
+
+    /// <inheritdoc/>
     public bool Equals(LrItemSet<TItem>? o) =>
            o is not null
         && this.Items.Count == o.Items.Count
@@ -17,8 +20,9 @@ public sealed record LrItemSet<TItem>(IReadOnlySet<TItem> Items)
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-        var h = default(HashCode);
-        foreach (var item in this.Items) h.Add(item);
-        return h.ToHashCode();
+        // NOTE: Order-independent hash
+        var hashCode = 0;
+        foreach (var item in this.Items) hashCode ^= item.GetHashCode();
+        return hashCode;
     }
 }

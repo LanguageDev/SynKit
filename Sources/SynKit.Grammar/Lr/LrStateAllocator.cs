@@ -4,7 +4,7 @@ namespace SynKit.Grammar.Lr;
 /// A simple LR state allocator based on item sets.
 /// </summary>
 /// <typeparam name="TItem">The LR item type.</typeparam>
-public class LrStateAllocator<TItem>
+public sealed class LrStateAllocator<TItem>
     where TItem : ILrItem
 {
     /// <summary>

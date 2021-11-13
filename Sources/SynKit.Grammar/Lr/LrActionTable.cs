@@ -7,7 +7,7 @@ namespace SynKit.Grammar.Lr;
 /// </summary>
 public sealed class LrActionTable
 {
-    private readonly Dictionary<LrState, Dictionary<Symbol.Terminal, HashSet<Action>>> underlying = new();
+    private readonly Dictionary<LrState, Dictionary<Symbol.Terminal, HashSet<LrAction>>> underlying = new();
 
     /// <summary>
     /// True, if there are conflicts in the table.
@@ -28,7 +28,7 @@ public sealed class LrActionTable
     /// <param name="state">The state.</param>
     /// <param name="terminal">The terminal.</param>
     /// <returns>The actions to perform on state <paramref name="state"/> and temrinal <paramref name="terminal"/>.</returns>
-    public ICollection<Action> this[LrState state, Symbol.Terminal terminal]
+    public ICollection<LrAction> this[LrState state, Symbol.Terminal terminal]
     {
         get
         {

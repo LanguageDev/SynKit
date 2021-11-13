@@ -6,7 +6,7 @@ namespace SynKit.Grammar.Lr;
 /// Represents a table for an LR parser.
 /// </summary>
 /// <typeparam name="TItem">The exact LR item type.</typeparam>
-public class LrParsingTable<TItem> : ILrParsingTable
+public sealed class LrParsingTable<TItem> : ILrParsingTable
     where TItem : ILrItem
 {
     /// <summary>
