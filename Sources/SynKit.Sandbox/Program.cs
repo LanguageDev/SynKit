@@ -1,9 +1,11 @@
 
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Ebnf;
 
-var g = new ContextFreeGrammar();
-g.AddProduction(new(new("S"), new[] { new Symbol.Terminal("a"), new Symbol.Terminal("b") }));
-g.AddProduction(new(new("S"), Array.Empty<Symbol>()));
+var ebnf = new EbnfGrammar();
+ebnf.StartRule = "program";
+ebnf.Rules["program"] = new EbnfAst.Rep0(new EbnfAst.Rule("stmt"));
+ebnf.Rules["stmt"] = new EbnfAst.Alt(new EbnfAst.Term("X"), new EbnfAst.Term("Y"));
 
-Console.WriteLine(g);
-Console.WriteLine();
+var cfg = ebnf.ToContextFreeGrammar();
+
+Console.WriteLine(cfg);
