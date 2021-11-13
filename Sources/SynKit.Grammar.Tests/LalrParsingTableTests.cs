@@ -3,41 +3,32 @@ using Xunit;
 
 namespace SynKit.Grammar.Tests;
 
-public class ClrParsingTableTests : LrTestBase<ClrItem>
+public class LalrParsingTableTests : LrTestBase<LalrItem>
 {
     [Fact]
     public void FromLr0Grammar()
     {
         var grammar = TestUtils.ParseCfg(Lr0Grammar);
         grammar.StartSymbol = new("S'");
-        var table = LrParsingTable.Clr(grammar);
+        var table = LrParsingTable.Lalr(grammar);
 
         // Assert state count
-        Assert.Equal(14, table.StateAllocator.States.Count);
+        Assert.Equal(8, table.StateAllocator.States.Count);
 
         // Assert item sets
         AssertState(
             table,
             out var i0,
-            "S' -> _ S, $",
-            "S -> _ a S b, $",
-            "S -> _ a S c, $",
-            "S -> _ d b, $");
+            "S' -> _ S, $");
         AssertState(
             table,
             out var i1,
-            "S -> a _ S b, $",
-            "S -> a _ S c, $",
-            "S -> _ a S b, b",
-            "S -> _ a S b, c",
-            "S -> _ a S c, b",
-            "S -> _ a S c, c",
-            "S -> _ d b, b",
-            "S -> _ d b, c");
+            "S -> a _ S b, b/c/$",
+            "S -> a _ S c, b/c/$");
         AssertState(
             table,
             out var i2,
-            "S -> d _ b, $");
+            "S -> d _ b, b/c/$");
         AssertState(
             table,
             out var i3,
@@ -45,89 +36,40 @@ public class ClrParsingTableTests : LrTestBase<ClrItem>
         AssertState(
             table,
             out var i4,
-            "S -> d b _, $");
+            "S -> d b _, b/c/$");
         AssertState(
             table,
             out var i5,
-            "S -> a _ S b, b",
-            "S -> a _ S b, c",
-            "S -> a _ S c, b",
-            "S -> a _ S c, c",
-            "S -> _ a S b, c",
-            "S -> _ a S b, b",
-            "S -> _ a S c, c",
-            "S -> _ a S c, b",
-            "S -> _ d b, b",
-            "S -> _ d b, c");
+            "S -> a S _ b, b/c/$",
+            "S -> a S _ c, b/c/$");
         AssertState(
             table,
             out var i6,
-            "S -> d _ b, b",
-            "S -> d _ b, c");
+            "S -> a S b _, b/c/$");
         AssertState(
             table,
             out var i7,
-            "S -> a S _ b, $",
-            "S -> a S _ c, $");
-        AssertState(
-            table,
-            out var i8,
-            "S -> a S b _, $");
-        AssertState(
-            table,
-            out var i9,
-            "S -> a S c _, $");
-        AssertState(
-            table,
-            out var i10,
-            "S -> d b _, b",
-            "S -> d b _, c");
-        AssertState(
-            table,
-            out var i11,
-            "S -> a S _ b, b",
-            "S -> a S _ b, c",
-            "S -> a S _ c, b",
-            "S -> a S _ c, c");
-        AssertState(
-            table,
-            out var i12,
-            "S -> a S b _, b",
-            "S -> a S b _, c");
-        AssertState(
-            table,
-            out var i13,
-            "S -> a S c _, b",
-            "S -> a S c _, c");
+            "S -> a S c _, b/c/$");
 
         // Assert action table
         AssertAction(table, i0, "a", Shift(i1));
         AssertAction(table, i0, "d", Shift(i2));
-        AssertAction(table, i1, "a", Shift(i5));
-        AssertAction(table, i1, "d", Shift(i6));
+        AssertAction(table, i1, "a", Shift(i1));
+        AssertAction(table, i1, "d", Shift(i2));
         AssertAction(table, i2, "b", Shift(i4));
         AssertAction(table, i3, "$", LrAction.Accept.Instance);
-        AssertAction(table, i4, "$", Reduce(grammar, "S -> d b"));
-        AssertAction(table, i5, "a", Shift(i5));
-        AssertAction(table, i5, "d", Shift(i6));
-        AssertAction(table, i6, "b", Shift(i10));
-        AssertAction(table, i7, "b", Shift(i8));
-        AssertAction(table, i7, "c", Shift(i9));
-        AssertAction(table, i8, "$", Reduce(grammar, "S -> a S b"));
-        AssertAction(table, i9, "$", Reduce(grammar, "S -> a S c"));
-        AssertAction(table, i10, "b", Reduce(grammar, "S -> d b"));
-        AssertAction(table, i10, "c", Reduce(grammar, "S -> d b"));
-        AssertAction(table, i11, "b", Shift(i12));
-        AssertAction(table, i11, "c", Shift(i13));
-        AssertAction(table, i12, "b", Reduce(grammar, "S -> a S b"));
-        AssertAction(table, i12, "c", Reduce(grammar, "S -> a S b"));
-        AssertAction(table, i13, "b", Reduce(grammar, "S -> a S c"));
-        AssertAction(table, i13, "c", Reduce(grammar, "S -> a S c"));
+        AssertAction(table, i5, "b", Shift(i6));
+        AssertAction(table, i5, "c", Shift(i7));
+        foreach (var term in new[] { "$", "b", "c" })
+        {
+            AssertAction(table, i4, term, Reduce(grammar, "S -> d b"));
+            AssertAction(table, i6, term, Reduce(grammar, "S -> a S b"));
+            AssertAction(table, i7, term, Reduce(grammar, "S -> a S c"));
+        }
 
         // Assert goto table
         Assert.Equal(i3, table.Goto[i0, new("S")]);
-        Assert.Equal(i7, table.Goto[i1, new("S")]);
-        Assert.Equal(i11, table.Goto[i5, new("S")]);
+        Assert.Equal(i5, table.Goto[i1, new("S")]);
     }
 
     [Fact]
@@ -135,7 +77,7 @@ public class ClrParsingTableTests : LrTestBase<ClrItem>
     {
         var grammar = TestUtils.ParseCfg(SlrGrammar);
         grammar.StartSymbol = new("S'");
-        var table = LrParsingTable.Clr(grammar);
+        var table = LrParsingTable.Lalr(grammar);
 
         // Assert state count
         Assert.Equal(5, table.StateAllocator.States.Count);
@@ -144,17 +86,12 @@ public class ClrParsingTableTests : LrTestBase<ClrItem>
         AssertState(
             table,
             out var i0,
-            "S' -> _ S, $",
-            "S -> _ E, $",
-            "E -> _ 1 E, $",
-            "E -> _ 1, $");
+            "S' -> _ S, $");
         AssertState(
             table,
             out var i1,
             "E -> 1 _ E, $",
-            "E -> 1 _, $",
-            "E -> _ 1 E, $",
-            "E -> _ 1, $");
+            "E -> 1 _, $");
         AssertState(
             table,
             out var i2,
@@ -187,7 +124,7 @@ public class ClrParsingTableTests : LrTestBase<ClrItem>
     {
         var grammar = TestUtils.ParseCfg(LalrGrammar);
         grammar.StartSymbol = new("S'");
-        var table = LrParsingTable.Clr(grammar);
+        var table = LrParsingTable.Lalr(grammar);
 
         // Assert state count
         Assert.Equal(11, table.StateAllocator.States.Count);
@@ -196,18 +133,12 @@ public class ClrParsingTableTests : LrTestBase<ClrItem>
         AssertState(
             table,
             out var i0,
-            "S' -> _ S, $",
-            "S -> _ a A c, $",
-            "S -> _ a B d, $",
-            "S -> _ B c, $",
-            "B -> _ z, c");
+            "S' -> _ S, $");
         AssertState(
             table,
             out var i1,
             "S -> a _ A c, $",
-            "S -> a _ B d, $",
-            "A -> _ z, c",
-            "B -> _ z, d");
+            "S -> a _ B d, $");
         AssertState(
             table,
             out var i2,
@@ -273,34 +204,26 @@ public class ClrParsingTableTests : LrTestBase<ClrItem>
     {
         var grammar = TestUtils.ParseCfg(ClrGrammar);
         grammar.StartSymbol = new("S'");
-        var table = LrParsingTable.Clr(grammar);
+        var table = LrParsingTable.Lalr(grammar);
 
         // Assert state count
-        Assert.Equal(14, table.StateAllocator.States.Count);
+        Assert.Equal(13, table.StateAllocator.States.Count);
 
         // Assert item sets
         AssertState(
             table,
             out var i0,
-            "S' -> _ S, $",
-            "S -> _ a E a, $",
-            "S -> _ b E b, $",
-            "S -> _ a F b, $",
-            "S -> _ b F a, $");
+            "S' -> _ S, $");
         AssertState(
             table,
             out var i1,
             "S -> a _ E a, $",
-            "S -> a _ F b, $",
-            "E -> _ e, a",
-            "F -> _ e, b");
+            "S -> a _ F b, $");
         AssertState(
             table,
             out var i2,
             "S -> b _ E b, $",
-            "S -> b _ F a, $",
-            "E -> _ e, b",
-            "F -> _ e, a");
+            "S -> b _ F a, $");
         AssertState(
             table,
             out var i3,
@@ -308,8 +231,8 @@ public class ClrParsingTableTests : LrTestBase<ClrItem>
         AssertState(
             table,
             out var i4,
-            "E -> e _, b",
-            "F -> e _, a");
+            "E -> e _, a/b",
+            "F -> e _, a/b");
         AssertState(
             table,
             out var i5,
@@ -329,48 +252,41 @@ public class ClrParsingTableTests : LrTestBase<ClrItem>
         AssertState(
             table,
             out var i9,
-            "E -> e _, a",
-            "F -> e _, b");
-        AssertState(
-            table,
-            out var i10,
             "S -> a E _ a, $");
         AssertState(
             table,
-            out var i11,
+            out var i10,
             "S -> a F _ b, $");
         AssertState(
             table,
-            out var i12,
+            out var i11,
             "S -> a F b _, $");
         AssertState(
             table,
-            out var i13,
+            out var i12,
             "S -> a E a _, $");
 
         // Assert action table
         AssertAction(table, i0, "a", Shift(i1));
         AssertAction(table, i0, "b", Shift(i2));
-        AssertAction(table, i1, "e", Shift(i9));
+        AssertAction(table, i1, "e", Shift(i4));
         AssertAction(table, i2, "e", Shift(i4));
         AssertAction(table, i3, "$", LrAction.Accept.Instance);
-        AssertAction(table, i4, "a", Reduce(grammar, "F -> e"));
-        AssertAction(table, i4, "b", Reduce(grammar, "E -> e"));
+        AssertAction(table, i4, "a", Reduce(grammar, "E -> e"), Reduce(grammar, "F -> e"));
+        AssertAction(table, i4, "b", Reduce(grammar, "E -> e"), Reduce(grammar, "F -> e"));
         AssertAction(table, i5, "b", Shift(i8));
         AssertAction(table, i6, "a", Shift(i7));
         AssertAction(table, i7, "$", Reduce(grammar, "S -> b F a"));
         AssertAction(table, i8, "$", Reduce(grammar, "S -> b E b"));
-        AssertAction(table, i9, "a", Reduce(grammar, "E -> e"));
-        AssertAction(table, i9, "b", Reduce(grammar, "F -> e"));
-        AssertAction(table, i10, "a", Shift(i13));
-        AssertAction(table, i11, "b", Shift(i12));
-        AssertAction(table, i12, "$", Reduce(grammar, "S -> a F b"));
-        AssertAction(table, i13, "$", Reduce(grammar, "S -> a E a"));
+        AssertAction(table, i9, "a", Shift(i12));
+        AssertAction(table, i10, "b", Shift(i11));
+        AssertAction(table, i11, "$", Reduce(grammar, "S -> a F b"));
+        AssertAction(table, i12, "$", Reduce(grammar, "S -> a E a"));
 
         // Assert goto table
         Assert.Equal(i3, table.Goto[i0, new("S")]);
-        Assert.Equal(i10, table.Goto[i1, new("E")]);
-        Assert.Equal(i11, table.Goto[i1, new("F")]);
+        Assert.Equal(i9, table.Goto[i1, new("E")]);
+        Assert.Equal(i10, table.Goto[i1, new("F")]);
         Assert.Equal(i5, table.Goto[i2, new("E")]);
         Assert.Equal(i6, table.Goto[i2, new("F")]);
     }
