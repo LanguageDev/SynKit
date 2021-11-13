@@ -10,7 +10,8 @@ public sealed record LrItemSet<TItem>(IReadOnlySet<TItem> Items)
 {
     /// <inheritdoc/>
     public bool Equals(LrItemSet<TItem>? o) =>
-           this.Items.Count == o.Items.Count
+           o is not null
+        && this.Items.Count == o.Items.Count
         && this.Items.SetEquals(o.Items);
 
     /// <inheritdoc/>
