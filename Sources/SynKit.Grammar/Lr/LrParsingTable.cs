@@ -8,6 +8,8 @@ namespace SynKit.Grammar.Lr;
 /// </summary>
 public static class LrParsingTable
 {
+    // TODO: Plenty of repetition, maybe factor out common structure?
+
     /// <summary>
     /// Builds an LR(0) parsing table.
     /// </summary>
@@ -416,7 +418,7 @@ public static class LrParsingTable
         var propagatesFrom = new Dictionary<(LrState State, Lr0Item Item), List<(LrState State, Lr0Item Item)>>();
 
         // $ generates from the initial item
-        var initialProductions = lr0Table.Grammar.GetProductions(lr0Table.Grammar.StartSymbol);
+        var initialProductions = lr0Table.Grammar.GetProductions(lr0Table.Grammar.StartSymbol!);
         var initialItems = initialProductions.Select(p => new Lr0Item(p, 0));
         foreach (var initialItem in initialItems)
         {

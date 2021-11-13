@@ -9,15 +9,16 @@ namespace SynKit.Grammar.Lr;
 public sealed class LrParsingTable<TItem> : ILrParsingTable
     where TItem : ILrItem
 {
-    /// <summary>
-    /// The grammar the table was generated for.
-    /// </summary>
+    /// <inheritdoc/>
     public ContextFreeGrammar Grammar { get; }
 
     /// <summary>
     /// The LR state allocator.
     /// </summary>
     public LrStateAllocator<TItem> StateAllocator { get; }
+
+    /// <inheritdoc/>
+    public IReadOnlyCollection<LrState> States => this.StateAllocator.States;
 
     /// <inheritdoc/>
     public LrActionTable Action { get; }

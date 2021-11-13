@@ -1,3 +1,5 @@
+using SynKit.Grammar.Cfg;
+
 namespace SynKit.Grammar.Lr;
 
 /// <summary>
@@ -5,6 +7,16 @@ namespace SynKit.Grammar.Lr;
 /// </summary>
 public interface ILrParsingTable
 {
+    /// <summary>
+    /// The grammar this table was generated from.
+    /// </summary>
+    public ContextFreeGrammar Grammar { get; }
+
+    /// <summary>
+    /// The states in the table.
+    /// </summary>
+    public IReadOnlyCollection<LrState> States { get; }
+
     /// <summary>
     /// The LR action table.
     /// </summary>
