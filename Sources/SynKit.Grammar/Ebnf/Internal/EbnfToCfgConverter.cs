@@ -99,7 +99,7 @@ internal sealed class EbnfToCfgConverter
 
     private Symbol ConvertRepAsSubrule(string name, EbnfAst.RepN node)
     {
-        var subName = $"name@sub{this.subruleCounter++}";
+        var subName = $"{name}@sub{this.subruleCounter++}";
         var subSym = new Symbol.Nonterminal(subName);
         // Construct min prefix
         var minSymbols = (IEnumerable<IEnumerable<Symbol>>)new[] { Enumerable.Empty<Symbol>() };

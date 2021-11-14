@@ -13,7 +13,7 @@ public abstract record LrAction
     public sealed record Shift(LrState State) : LrAction
     {
         /// <inheritdoc/>
-        public override string ToString() => $"shift({this.State})";
+        public override string ToString() => $"shift({this.State.Id})";
     }
 
     /// <summary>

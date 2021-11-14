@@ -11,4 +11,8 @@
     <ProjectReference Include="$(SolutionDir)\SynKit.Grammar\SynKit.Grammar.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Scriban" Version="5.0.0" />
+  </ItemGroup>
+
 </Project>
