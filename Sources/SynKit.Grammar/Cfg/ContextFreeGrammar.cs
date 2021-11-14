@@ -43,6 +43,7 @@ public sealed class ContextFreeGrammar
     private Symbol.Nonterminal? startSymbol;
     private Dictionary<Symbol, HashSet<Symbol>>? firstSets;
     private Dictionary<Symbol.Nonterminal, HashSet<Symbol.Terminal>>? followSets;
+    private HashSet<Symbol.Nonterminal>? nullables;
 
     /// <inheritdoc/>
     public override string ToString()
@@ -121,6 +122,17 @@ public sealed class ContextFreeGrammar
     }
 
     /// <summary>
+    /// Checks if the given nonterminal is nullable, meaning that the empty word can be derived from it.
+    /// </summary>
+    /// <param name="nonterminal">The nonterminal to check.</param>
+    /// <returns>True, if <paramref name="nonterminal"/> is nullable, false otherwise.</returns>
+    public bool IsNullable(Symbol.Nonterminal nonterminal)
+    {
+        this.nullables ??= this.CalculateNullables();
+        return this.nullables.Contains(nonterminal);
+    }
+
+    /// <summary>
     /// Retrieves the first set of a given symbol, which is the first terminal or empty word that can be
     /// derived from it.
     /// </summary>
@@ -176,6 +188,30 @@ public sealed class ContextFreeGrammar
     {
         this.firstSets = null;
         this.followSets = null;
+        this.nullables = null;
+    }
+
+    private HashSet<Symbol.Nonterminal> CalculateNullables()
+    {
+        var result = new HashSet<Symbol.Nonterminal>();
+        // Initially we add all left-side of productions that has an empty right-side
+        foreach (var prod in this.Productions.Where(p => p.Right.Count == 0)) result.Add(prod.Left);
+        // While there is a change, we refine the set
+        while (true)
+        {
+            var change = false;
+
+            foreach (var prod in this.Productions)
+            {
+                // If the productions right side consists of only nullables, we add its left side
+                if (prod.Right.Any(s => s is not Symbol.Nonterminal nt || !result.Contains(nt))) continue;
+                // It is nullable
+                change = result.Add(prod.Left) || change;
+            }
+
+            if (!change) break;
+        }
+        return result;
     }
 
     private Dictionary<Symbol, HashSet<Symbol>> CalculateFirstSets()
