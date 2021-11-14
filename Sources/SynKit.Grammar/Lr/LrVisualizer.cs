@@ -7,6 +7,9 @@ namespace SynKit.Grammar.Lr;
 /// </summary>
 public static class LrVisualizer
 {
+    // TODO: Hacky escapes, like hard-replacing _ with dot or -> with arrow
+    // We should find a better way!
+
     /// <summary>
     /// Creates a HTML representation of the Action-Goto table.
     /// </summary>
