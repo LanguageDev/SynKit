@@ -17,6 +17,9 @@ public sealed record ClrItem(Production Production, int Cursor, Symbol.Terminal 
     /// <inheritdoc/>
     public Symbol? AfterCursor => this.IsFinal ? null : this.Production.Right[this.Cursor];
 
+    /// <inheritdoc/>
+    ILrItem ILrItem.Next => this.Next;
+
     /// <summary>
     /// Retrieves the next item, with the cursor advanced one.
     /// </summary>
