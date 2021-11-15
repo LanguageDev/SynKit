@@ -31,9 +31,4 @@ public interface ILrItem
     /// The symbol after the cursor. Null, if the cursor is at the end.
     /// </summary>
     public Symbol? AfterCursor { get; }
-
-    /// <summary>
-    /// The next item with the cursor advanced.
-    /// </summary>
-    public ILrItem Next { get; }
 }

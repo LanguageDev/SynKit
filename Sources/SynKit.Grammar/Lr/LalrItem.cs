@@ -17,9 +17,6 @@ public sealed record LalrItem(Production Production, int Cursor, IReadOnlySet<Sy
     /// <inheritdoc/>
     public Symbol? AfterCursor => this.IsFinal ? null : this.Production.Right[this.Cursor];
 
-    /// <inheritdoc/>
-    ILrItem ILrItem.Next => this.Next;
-
     /// <summary>
     /// Retrieves the next item, with the cursor advanced one.
     /// </summary>

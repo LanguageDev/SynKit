@@ -17,9 +17,9 @@ public sealed class LrActionTable
     /// <summary>
     /// Retrieves the confliction transitions.
     /// </summary>
-    public IEnumerable<(LrState State, Symbol.Terminal)> ConflictingTransitions => this.underlying
+    public IEnumerable<(LrState State, Symbol.Terminal Terminal)> ConflictingTransitions => this.underlying
         .SelectMany(kv =>
-            kv.Value.Where(kv2 => kv2.Value.Count > 0)
+            kv.Value.Where(kv2 => kv2.Value.Count > 1)
                     .Select(kv2 => (kv.Key, kv2.Key)));
 
     /// <summary>

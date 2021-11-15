@@ -1,4 +1,5 @@
 using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Lr.Internal;
 using System.Diagnostics;
 
 namespace SynKit.Grammar.Lr;
@@ -8,6 +9,20 @@ namespace SynKit.Grammar.Lr;
 /// </summary>
 public static class LrParsingTable
 {
+    // TODO: Just a test interface for now
+    public static void SearchShortestLaPath<TItem>(
+        LrParsingTable<TItem> table,
+        LrState conflState,
+        TItem conflReduce,
+        Symbol.Terminal conflTerm)
+        where TItem : ILrItem
+    {
+        var lr0Reduce = new Lr0Item(conflReduce.Production, conflReduce.Cursor);
+        var conflItem = new LookaheadState(conflState, lr0Reduce, new HashSet<Symbol.Terminal> { conflTerm });
+        var laPath = new LookaheadPath<TItem>(table, conflItem);
+        laPath.SearchPath();
+    }
+
     // TODO: Plenty of repetition, maybe factor out common structure?
 
     /// <summary>
