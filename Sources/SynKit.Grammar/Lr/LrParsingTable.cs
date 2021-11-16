@@ -14,12 +14,11 @@ public static class LrParsingTable
         LrParsingTable<TItem> table,
         LrState conflState,
         TItem conflReduce,
+        TItem conflOther,
         Symbol.Terminal conflTerm)
         where TItem : ILrItem
     {
-        var lr0Reduce = new Lr0Item(conflReduce.Production, conflReduce.Cursor);
-        var conflItem = new LookaheadState(conflState, lr0Reduce, new HashSet<Symbol.Terminal> { conflTerm });
-        var laPath = new LookaheadPath<TItem>(table, conflItem);
+        var laPath = new LookaheadPathSearch<TItem>(table, conflState, conflReduce, conflOther, conflTerm);
         laPath.SearchPath();
     }
 

@@ -3,23 +3,42 @@ using System.Diagnostics;
 
 namespace SynKit.Grammar.Lr.Internal;
 
-internal sealed class LookaheadPath<TItem>
+internal sealed class LookaheadPathSearch<TItem>
     where TItem : ILrItem
 {
     private record SearchNode(LookaheadState Item, SearchNode? Parent);
 
     private readonly LrParsingTable<TItem> table;
-    private readonly LookaheadState conflicting;
+    private readonly LrState conflictState;
+    private readonly TItem conflictItem1; // Must be reduce
+    private readonly TItem conflictItem2;
+    private readonly Symbol.Terminal conflictTerm;
 
-    public LookaheadPath(
+    private bool IsReduceReduce => this.conflictItem2.IsFinal;
+    private bool IsShiftReduce => !this.IsReduceReduce;
+
+    public LookaheadPathSearch(
         LrParsingTable<TItem> table,
-        LookaheadState conflicting)
+        LrState conflictState,
+        TItem conflictItem1,
+        TItem conflictItem2,
+        Symbol.Terminal conflictTerm)
     {
-        Debug.Assert(conflicting.Item.IsFinal, "The item must be a reduce item.");
-        Debug.Assert(conflicting.Lookaheads.Count == 1, "There must be one conflicting symbol.");
+        if (!conflictItem1.IsFinal && !conflictItem2.IsFinal) throw new InvalidOperationException("At least one item must be final.");
 
         this.table = table;
-        this.conflicting = conflicting;
+        this.conflictState = conflictState;
+        if (conflictItem1.IsFinal)
+        {
+            this.conflictItem1 = conflictItem1;
+            this.conflictItem2 = conflictItem2;
+        }
+        else
+        {
+            this.conflictItem1 = conflictItem2;
+            this.conflictItem2 = conflictItem1;
+        }
+        this.conflictTerm = conflictTerm;
     }
 
     public void SearchPath()
@@ -77,9 +96,9 @@ internal sealed class LookaheadPath<TItem>
     }
 
     private bool IsSearched(LookaheadState state) =>
-           state.State == this.conflicting.State
-        && state.Item.Equals(this.conflicting.Item)
-        && state.Lookaheads.Contains(this.conflicting.Lookaheads.First());
+           state.State == this.conflictState
+        && state.Item.Equals(this.conflictItem1)
+        && state.Lookaheads.Contains(this.conflictTerm);
 
     private IEnumerable<(LrState State, Lr0Item Item)> NextItem(LrState state, Lr0Item item)
     {
