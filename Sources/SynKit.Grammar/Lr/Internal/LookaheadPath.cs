@@ -1,52 +1,33 @@
 using SynKit.Grammar.Cfg;
-using System.Diagnostics;
 
 namespace SynKit.Grammar.Lr.Internal;
 
-internal sealed class LookaheadPathSearch<TItem>
+internal sealed class LookaheadPath<TItem>
     where TItem : ILrItem
 {
     private record SearchNode(LookaheadState Item, SearchNode? Parent);
 
     private readonly LrParsingTable<TItem> table;
-    private readonly LrState conflictState;
-    private readonly TItem conflictItem1; // Must be reduce
-    private readonly TItem conflictItem2;
-    private readonly Symbol.Terminal conflictTerm;
+    private readonly LrState searchState;
+    private readonly TItem searchItem; // Must be reduce
+    private readonly Symbol.Terminal searchTerm;
 
-    private bool IsReduceReduce => this.conflictItem2.IsFinal;
-    private bool IsShiftReduce => !this.IsReduceReduce;
-
-    public LookaheadPathSearch(
+    public LookaheadPath(
         LrParsingTable<TItem> table,
-        LrState conflictState,
-        TItem conflictItem1,
-        TItem conflictItem2,
-        Symbol.Terminal conflictTerm)
+        LrState searchState,
+        TItem searchItem,
+        Symbol.Terminal searchTerm)
     {
-        if (!conflictItem1.IsFinal && !conflictItem2.IsFinal) throw new InvalidOperationException("At least one item must be final.");
+        if (!searchItem.IsFinal) throw new ArgumentException("The searched item must be a reduce one.", nameof(searchItem));
 
         this.table = table;
-        this.conflictState = conflictState;
-        if (conflictItem1.IsFinal)
-        {
-            this.conflictItem1 = conflictItem1;
-            this.conflictItem2 = conflictItem2;
-        }
-        else
-        {
-            this.conflictItem1 = conflictItem2;
-            this.conflictItem2 = conflictItem1;
-        }
-        this.conflictTerm = conflictTerm;
+        this.searchState = searchState;
+        this.searchItem = searchItem;
+        this.searchTerm = searchTerm;
     }
 
-    public void SearchPath()
+    public IReadOnlyList<LookaheadState> Search()
     {
-        static string DebugDumpPath(SearchNode s) =>
-              (s.Parent is null ? string.Empty : DebugDumpPath(s.Parent))
-            + $"\n[{s.Item.State}, {s.Item.Item}, {{{string.Join(", ", s.Item.Lookaheads)}}}";
-
         // Simple BFS
         var queue = new Queue<SearchNode>();
         // Initial is (s0, item0, {$})
@@ -68,11 +49,7 @@ internal sealed class LookaheadPathSearch<TItem>
             foreach (var (nextState, nextItem) in this.NextItem(current.State, current.Item))
             {
                 var next = new LookaheadState(nextState, nextItem, current.Lookaheads);
-                if (this.IsSearched(next))
-                {
-                    // TODO: Found path
-                    Console.WriteLine(DebugDumpPath(new(next, currentNode)));
-                }
+                if (this.IsSearched(next)) return YieldPath(new(next, currentNode));
                 queue.Enqueue(new(next, currentNode));
             }
 
@@ -84,21 +61,38 @@ internal sealed class LookaheadPathSearch<TItem>
                 foreach (var nextProd in prods)
                 {
                     var next = new LookaheadState(current.State, CreateItem(nextProd), follow);
-                    if (this.IsSearched(next))
-                    {
-                        // TODO: Found path
-                        Console.WriteLine(DebugDumpPath(new(next, currentNode)));
-                    }
+                    if (this.IsSearched(next)) return YieldPath(new(next, currentNode));
                     queue.Enqueue(new(next, currentNode));
                 }
             }
         }
+        return Array.Empty<LookaheadState>();
+    }
+
+    public IReadOnlyList<Symbol> CompleteAllProductions(IReadOnlyList<LookaheadState> path)
+    {
+        if (path.Count == 0) return Array.Empty<Symbol>();
+
+        var result = path[0].Item.Production.Right.ToList();
+        var offset = 0;
+
+        for (var i = 1; i < path.Count; ++i)
+        {
+            var prevState = path[i - 1];
+            var currState = path[i];
+
+            var isTransition = prevState.Item.Cursor + 1 == currState.Item.Cursor;
+
+            // TODO
+        }
+
+        return result;
     }
 
     private bool IsSearched(LookaheadState state) =>
-           state.State == this.conflictState
-        && Lr0Equals(state.Item, this.conflictItem1)
-        && state.Lookaheads.Contains(this.conflictTerm);
+           state.State == this.searchState
+        && Lr0Equals(state.Item, this.searchItem)
+        && state.Lookaheads.Contains(this.searchTerm);
 
     private IEnumerable<(LrState State, Lr0Item Item)> NextItem(LrState state, Lr0Item item)
     {
@@ -133,6 +127,18 @@ internal sealed class LookaheadPathSearch<TItem>
         var followNext = this.PreciseLookaheadSet(item.Next, context);
         first.UnionWith(followNext);
         return first;
+    }
+
+    private static IReadOnlyList<LookaheadState> YieldPath(SearchNode node)
+    {
+        static IEnumerable<LookaheadState> YieldHelper(SearchNode node)
+        {
+            for (SearchNode? it = node; it is not null; it = it.Parent) yield return it.Item;
+        }
+
+        var result = YieldHelper(node).ToList();
+        result.Reverse();
+        return result;
     }
 
     private static Lr0Item CreateItem(Production production) => new(production, 0);

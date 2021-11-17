@@ -18,7 +18,7 @@ public static class LrParsingTable
         Symbol.Terminal conflTerm)
         where TItem : ILrItem
     {
-        var laPath = new LookaheadPathSearch<TItem>(table, conflState, conflReduce, conflOther, conflTerm);
+        var laPath = new LookaheadPath<TItem>(table, conflState, conflReduce, conflOther, conflTerm);
         laPath.SearchPath();
     }
 
