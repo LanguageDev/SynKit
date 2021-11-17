@@ -20,7 +20,7 @@ public static class LrParsingTable
     {
         var laPath = new LookaheadPath<TItem>(table);
         var path = laPath.Search(conflState, conflReduce, conflTerm);
-        var (prod, cur) = laPath.CompleteAllProductions(path);
+        var (prod, cur) = laPath.CompleteAllProductions(path, conflTerm);
         Console.WriteLine("Shortest lookahead-sensitive path");
         Console.WriteLine(string.Join("\n", path.Select(p => $"({p.State}, {p.Item}, {{{string.Join(", ", p.Lookaheads)}}})")));
         Console.WriteLine("Completed production");

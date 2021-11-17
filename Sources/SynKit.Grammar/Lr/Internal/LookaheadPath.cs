@@ -1,4 +1,5 @@
 using SynKit.Grammar.Cfg;
+using System.Diagnostics;
 
 namespace SynKit.Grammar.Lr.Internal;
 
@@ -64,7 +65,9 @@ internal sealed class LookaheadPath<TItem>
         return Array.Empty<LookaheadState>();
     }
 
-    public (IReadOnlyList<Symbol> Symbols, int Cursor) CompleteAllProductions(IReadOnlyList<LookaheadState> path)
+    public (IReadOnlyList<Symbol> Symbols, int Cursor) CompleteAllProductions(
+        IReadOnlyList<LookaheadState> path,
+        Symbol.Terminal lookahead)
     {
         if (path.Count == 0) return (Array.Empty<Symbol>(), 0);
 
@@ -89,6 +92,30 @@ internal sealed class LookaheadPath<TItem>
                 result.InsertRange(offset, currState.Item.Production.Right);
             }
         }
+
+        if (result[offset] is Symbol.Nonterminal)
+        {
+            // We need to substitute to get the proper lookahead terminal
+            var usedProductions = new HashSet<Production>();
+            while (result[offset] is Symbol.Nonterminal nt)
+            {
+                var productions = this.table.Grammar.GetProductions(nt);
+                foreach (var prod in productions)
+                {
+                    // Epsilon-productions don't count
+                    if (prod.Right.Count == 0) continue;
+                    // We can consider the production, if the first-set contains the terminal
+                    if (!this.table.Grammar.FirstSet(prod.Right).Contains(lookahead)) continue;
+                    // Check, if already used
+                    if (!usedProductions.Add(prod)) continue;
+                    // Do the substitution
+                    result.RemoveAt(offset);
+                    result.InsertRange(offset, prod.Right);
+                    break;
+                }
+            }
+        }
+        Debug.Assert(result[offset].Equals(lookahead), "The terminal after the cursor must be the lookahead terminal.");
 
         return (result, offset);
     }
