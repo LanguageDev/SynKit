@@ -97,7 +97,7 @@ internal sealed class LookaheadPathSearch<TItem>
 
     private bool IsSearched(LookaheadState state) =>
            state.State == this.conflictState
-        && state.Item.Equals(this.conflictItem1)
+        && Lr0Equals(state.Item, this.conflictItem1)
         && state.Lookaheads.Contains(this.conflictTerm);
 
     private IEnumerable<(LrState State, Lr0Item Item)> NextItem(LrState state, Lr0Item item)
@@ -136,4 +136,8 @@ internal sealed class LookaheadPathSearch<TItem>
     }
 
     private static Lr0Item CreateItem(Production production) => new(production, 0);
+
+    private static bool Lr0Equals(Lr0Item i1, TItem i2) =>
+           i1.Production.Equals(i2.Production)
+        && i1.Cursor == i2.Cursor;
 }
