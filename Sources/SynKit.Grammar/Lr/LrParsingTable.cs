@@ -18,8 +18,19 @@ public static class LrParsingTable
         Symbol.Terminal conflTerm)
         where TItem : ILrItem
     {
-        var laPath = new LookaheadPath<TItem>(table, conflState, conflReduce, conflOther, conflTerm);
-        laPath.SearchPath();
+        var laPath = new LookaheadPath<TItem>(table);
+        var path = laPath.Search(conflState, conflReduce, conflTerm);
+        var (prod, cur) = laPath.CompleteAllProductions(path);
+        Console.WriteLine("Shortest lookahead-sensitive path");
+        Console.WriteLine(string.Join("\n", path.Select(p => $"({p.State}, {p.Item}, {{{string.Join(", ", p.Lookaheads)}}})")));
+        Console.WriteLine("Completed production");
+        for (var i = 0; i < prod.Count; ++i)
+        {
+            if (i > 0) Console.Write(' ');
+            if (i == cur) Console.Write("_ ");
+            Console.Write(prod[i]);
+        }
+        Console.WriteLine();
     }
 
     // TODO: Plenty of repetition, maybe factor out common structure?
