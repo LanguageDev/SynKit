@@ -35,7 +35,7 @@ var lalrTable = LrParsingTable.Lalr(cfg);
 Console.WriteLine(lalrTable.ToHtmlTable());
 Console.WriteLine("==================");
 Console.WriteLine(lalrTable.ToDotDfa());
-#if false // Dangling else
+#if true // Dangling else
 var conflict = lalrTable.Action.ConflictingTransitions.First(t => t.Terminal.Equals(T_else));
 var conflictItem = lalrTable.StateAllocator[conflict.State].Items.First(i => i.IsFinal);
 var conflictItem2 = lalrTable.StateAllocator[conflict.State].Items.First(i => !i.IsFinal);

@@ -21,6 +21,8 @@ public static class LrParsingTable
         var laPath = new LookaheadPath<TItem>(table);
         var path = laPath.Search(conflState, conflReduce, conflTerm);
         var (prod, cur) = laPath.CompleteAllProductions(path, conflTerm);
+        var shiftPath = laPath.DiscoverShiftPath(path, conflOther);
+        var (prod2, cur2) = laPath.CompleteAllProductions(shiftPath, conflTerm);
         Console.WriteLine("Shortest lookahead-sensitive path");
         Console.WriteLine(string.Join("\n", path.Select(p => $"({p.State}, {p.Item}, {{{string.Join(", ", p.Lookaheads)}}})")));
         Console.WriteLine("Completed production");
@@ -29,6 +31,14 @@ public static class LrParsingTable
             if (i > 0) Console.Write(' ');
             if (i == cur) Console.Write("_ ");
             Console.Write(prod[i]);
+        }
+        Console.WriteLine();
+        Console.WriteLine("Completed shift");
+        for (var i = 0; i < prod2.Count; ++i)
+        {
+            if (i > 0) Console.Write(' ');
+            if (i == cur2) Console.Write("_ ");
+            Console.Write(prod2[i]);
         }
         Console.WriteLine();
     }
@@ -397,7 +407,7 @@ public static class LrParsingTable
     {
         var result = set.ToHashSet();
         var stk = new Stack<TItem>();
-        foreach (var item in set) stk.Push(item);
+        foreach (var item in result) stk.Push(item);
         while (stk.TryPop(out var item))
         {
             var afterCursor = item.AfterCursor;
