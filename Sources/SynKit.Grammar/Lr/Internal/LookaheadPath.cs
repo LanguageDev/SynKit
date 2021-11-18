@@ -9,7 +9,7 @@ internal sealed class LookaheadPath<TItem>
     private record SearchNode(LookaheadItem Item, SearchNode? Parent);
 
     private readonly LrParsingTable<TItem> table;
-    private Dictionary<(StateItem, Symbol), HashSet<StateItem>>? reverseTransitions;
+    private Dictionary<StateItem, Dictionary<Symbol, HashSet<StateItem>>>? reverseTransitions;
 
     public LookaheadPath(LrParsingTable<TItem> table)
     {
@@ -24,6 +24,9 @@ internal sealed class LookaheadPath<TItem>
             && state.Lookaheads.Contains(searchTerm);
 
         if (!searchItem.IsFinal) throw new ArgumentException("The searched item must be a reduce one.", nameof(searchItem));
+
+        // Calculate eligible state set
+        var eligible = this.CalculateEligibleStates(new(searchState, ToLr0Item(searchItem)));
 
         // Simple BFS
         var queue = new Queue<SearchNode>();
@@ -46,6 +49,7 @@ internal sealed class LookaheadPath<TItem>
             foreach (var (nextState, nextItem) in this.NextItem(current.State, current.Item))
             {
                 var next = new LookaheadItem(nextState, nextItem, current.Lookaheads);
+                if (!eligible.Contains(new(next.State, next.Item))) continue;
                 if (IsSearched(next)) return YieldPath(new(next, currentNode));
                 queue.Enqueue(new(next, currentNode));
             }
@@ -58,6 +62,7 @@ internal sealed class LookaheadPath<TItem>
                 foreach (var nextProd in prods)
                 {
                     var next = new LookaheadItem(current.State, CreateItem(nextProd), follow);
+                    if (!eligible.Contains(new(next.State, next.Item))) continue;
                     if (IsSearched(next)) return YieldPath(new(next, currentNode));
                     queue.Enqueue(new(next, currentNode));
                 }
@@ -236,6 +241,33 @@ internal sealed class LookaheadPath<TItem>
         return (result, offset);
     }
 
+    private IReadOnlySet<StateItem> CalculateEligibleStates(StateItem target)
+    {
+        this.reverseTransitions ??= this.CalculateReverseTransitions();
+        var result = new HashSet<StateItem>();
+        var queue = new Queue<StateItem>();
+        queue.Enqueue(target);
+        while (queue.TryDequeue(out var si))
+        {
+            if (!result.Add(si)) continue;
+            // Consider reverse transitions and reverse productions.
+            if (this.reverseTransitions.TryGetValue(si, out var onMap))
+            {
+                foreach (var prev in onMap.Values.SelectMany(x => x)) queue.Enqueue(prev);
+            }
+            if (si.Item.IsInitial)
+            {
+                var prod = si.Item.Production;
+                var lhs = prod.Left;
+                foreach (var prev in this.GetReverseProduction(si.State, lhs))
+                {
+                    queue.Enqueue(new(si.State, ToLr0Item(prev)));
+                }
+            }
+        }
+        return result;
+    }
+
     private IEnumerable<(LrState State, Lr0Item Item)> NextItem(LrState state, Lr0Item item)
     {
         var x = item.AfterCursor!;
@@ -287,12 +319,12 @@ internal sealed class LookaheadPath<TItem>
     private IReadOnlySet<StateItem> GetReverseTransitions(StateItem item, Symbol symbol)
     {
         this.reverseTransitions ??= this.CalculateReverseTransitions();
-        return this.reverseTransitions[(item, symbol)];
+        return this.reverseTransitions[item][symbol];
     }
 
-    private Dictionary<(StateItem, Symbol), HashSet<StateItem>> CalculateReverseTransitions()
+    private Dictionary<StateItem, Dictionary<Symbol, HashSet<StateItem>>> CalculateReverseTransitions()
     {
-        var result = new Dictionary<(StateItem, Symbol), HashSet<StateItem>>();
+        var result = new Dictionary<StateItem, Dictionary<Symbol, HashSet<StateItem>>>();
 
         void AddTransition(LrState srcState, LrState dstState, Symbol symbol)
         {
@@ -303,10 +335,15 @@ internal sealed class LookaheadPath<TItem>
                     if (srcItem.Cursor + 1 != dstItem.Cursor) continue;
                     if (!srcItem.Production.Equals(dstItem.Production)) continue;
                     var dstStateItem = new StateItem(dstState, dstItem);
-                    if (!result!.TryGetValue((dstStateItem, symbol), out var set))
+                    if (!result.TryGetValue(dstStateItem, out var symbolMap))
+                    {
+                        symbolMap = new();
+                        result.Add(dstStateItem, symbolMap);
+                    }
+                    if (!symbolMap.TryGetValue(symbol, out var set))
                     {
                         set = new();
-                        result.Add((dstStateItem, symbol), set);
+                        symbolMap.Add(symbol, set);
                     }
                     set.Add(new(srcState, srcItem));
                 }
