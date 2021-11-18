@@ -1,5 +1,4 @@
 using SynKit.Grammar.Cfg;
-using SynKit.Grammar.Ebnf;
 using SynKit.Grammar.Lr;
 
 var stmt = new Symbol.Nonterminal("stmt");
