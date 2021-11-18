@@ -26,46 +26,59 @@ public class CounterexampleTests
     public void ShortestLookaheadPathForDanglingElse()
     {
         var table = CreateTestTable();
-        var T_else = new Symbol.Terminal("else");
 
         var conflict = table.Action.ConflictingTransitions.First(t => t.Terminal.Equals(T_else));
         var conflictItem = table.StateAllocator[conflict.State].Items.First(i => i.IsFinal);
         var conflictItem2 = table.StateAllocator[conflict.State].Items.First(i => !i.IsFinal);
 
         var pathSearch = new LookaheadPath<LalrItem>(table);
-        var path = pathSearch.Search(conflict.State, conflictItem, T_else);
+        var reducePath = pathSearch.Search(conflict.State, conflictItem, T_else);
 
-        Assert.Equal(10, path.Count);
+        // Reduce path
+        Assert.Equal(10, reducePath.Count);
         // State 0
-        Assert.Equal(new(Prod(table.Grammar.StartSymbol!, stmt), 0), path[0].Item);
-        Assert.True(path[0].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
+        Assert.Equal(new(Prod(table.Grammar.StartSymbol!, stmt), 0), reducePath[0].Item);
+        Assert.True(reducePath[0].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
         // State 1
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 0), path[1].Item);
-        Assert.True(path[1].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 0), reducePath[1].Item);
+        Assert.True(reducePath[1].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
         // State 2
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 1), path[2].Item);
-        Assert.True(path[2].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 1), reducePath[2].Item);
+        Assert.True(reducePath[2].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
         // State 3
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 2), path[3].Item);
-        Assert.True(path[3].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 2), reducePath[3].Item);
+        Assert.True(reducePath[3].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
         // State 4
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 3), path[4].Item);
-        Assert.True(path[4].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 3), reducePath[4].Item);
+        Assert.True(reducePath[4].Lookaheads.SetEquals(new[] { Symbol.Terminal.EndOfInput }));
         // State 5
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 0), path[5].Item);
-        Assert.True(path[5].Lookaheads.SetEquals(new[] { T_else }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 0), reducePath[5].Item);
+        Assert.True(reducePath[5].Lookaheads.SetEquals(new[] { T_else }));
         // State 6
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 1), path[6].Item);
-        Assert.True(path[6].Lookaheads.SetEquals(new[] { T_else }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 1), reducePath[6].Item);
+        Assert.True(reducePath[6].Lookaheads.SetEquals(new[] { T_else }));
         // State 7
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 2), path[7].Item);
-        Assert.True(path[7].Lookaheads.SetEquals(new[] { T_else }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 2), reducePath[7].Item);
+        Assert.True(reducePath[7].Lookaheads.SetEquals(new[] { T_else }));
         // State 8
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 3), path[8].Item);
-        Assert.True(path[8].Lookaheads.SetEquals(new[] { T_else }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 3), reducePath[8].Item);
+        Assert.True(reducePath[8].Lookaheads.SetEquals(new[] { T_else }));
         // State 9
-        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 4), path[9].Item);
-        Assert.True(path[9].Lookaheads.SetEquals(new[] { T_else }));
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 4), reducePath[9].Item);
+        Assert.True(reducePath[9].Lookaheads.SetEquals(new[] { T_else }));
+
+        // Shift path
+        var shiftPath = pathSearch.DiscoverShiftPath(reducePath, conflictItem2);
+        Assert.Equal(new(Prod(table.Grammar.StartSymbol!, stmt), 0), shiftPath[0].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 0), shiftPath[1].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 1), shiftPath[2].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 2), shiftPath[3].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt), 3), shiftPath[4].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 0), shiftPath[5].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 1), shiftPath[6].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 2), shiftPath[7].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 3), shiftPath[8].Item);
+        Assert.Equal(new(Prod(stmt, T_if, expr, T_then, stmt, T_else, stmt), 4), shiftPath[9].Item);
     }
 
     private static LrParsingTable<LalrItem> CreateTestTable()
