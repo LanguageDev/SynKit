@@ -43,4 +43,4 @@ var conflict = lalrTable.Action.ConflictingTransitions.First(t => t.Terminal.Equ
 var conflictItem = lalrTable.StateAllocator[conflict.State].Items.First(i => i.IsFinal);
 var conflictItem2 = lalrTable.StateAllocator[conflict.State].Items.First(i => !i.IsFinal);
 #endif
-LrParsingTable.SearchShortestLaPath<LalrItem>(lalrTable, conflict.State, conflictItem, conflictItem2, conflict.Terminal);
+// LrParsingTable.SearchShortestLaPath<LalrItem>(lalrTable, conflict.State, conflictItem, conflictItem2, conflict.Terminal);

@@ -1,5 +1,4 @@
 using SynKit.Grammar.Cfg;
-using SynKit.Grammar.Lr.Internal;
 using System.Diagnostics;
 
 namespace SynKit.Grammar.Lr;
@@ -9,40 +8,6 @@ namespace SynKit.Grammar.Lr;
 /// </summary>
 public static class LrParsingTable
 {
-    // TODO: Just a test interface for now
-    public static void SearchShortestLaPath<TItem>(
-        LrParsingTable<TItem> table,
-        LrState conflState,
-        TItem conflReduce,
-        TItem conflOther,
-        Symbol.Terminal conflTerm)
-        where TItem : ILrItem
-    {
-        var laPath = new LookaheadPath<TItem>(table);
-        var path = laPath.Search(conflState, conflReduce, conflTerm);
-        var (prod, cur) = laPath.CompleteAllProductions(path, conflTerm);
-        var shiftPath = laPath.DiscoverShiftPath(path, conflOther);
-        var (prod2, cur2) = laPath.CompleteAllProductions(shiftPath, conflTerm);
-        Console.WriteLine("Shortest lookahead-sensitive path");
-        Console.WriteLine(string.Join("\n", path.Select(p => $"({p.State}, {p.Item}, {{{string.Join(", ", p.Lookaheads)}}})")));
-        Console.WriteLine("Completed production");
-        for (var i = 0; i < prod.Count; ++i)
-        {
-            if (i > 0) Console.Write(' ');
-            if (i == cur) Console.Write("_ ");
-            Console.Write(prod[i]);
-        }
-        Console.WriteLine();
-        Console.WriteLine("Completed shift");
-        for (var i = 0; i < prod2.Count; ++i)
-        {
-            if (i > 0) Console.Write(' ');
-            if (i == cur2) Console.Write("_ ");
-            Console.Write(prod2[i]);
-        }
-        Console.WriteLine();
-    }
-
     // TODO: Plenty of repetition, maybe factor out common structure?
 
     /// <summary>
