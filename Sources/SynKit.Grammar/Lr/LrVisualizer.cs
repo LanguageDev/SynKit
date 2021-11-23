@@ -108,7 +108,7 @@ public static class LrVisualizer
         // Push out all states
         foreach (var state in table.StateAllocator.States)
         {
-            var set = table.StateAllocator[state].Items;
+            var set = table.StateAllocator[state];
             var setText = string.Join(@"\l", set)
                 .Replace(" -> ", " → ")
                 .Replace(" _", " &#8226;");

@@ -35,8 +35,8 @@ Console.WriteLine("==================");
 Console.WriteLine(lalrTable.ToDotDfa());
 #if true // Dangling else
 var conflict = lalrTable.Action.ConflictingTransitions.First(t => t.Terminal.Equals(T_else));
-var conflictItem = lalrTable.StateAllocator[conflict.State].Items.First(i => i.IsFinal);
-var conflictItem2 = lalrTable.StateAllocator[conflict.State].Items.First(i => !i.IsFinal);
+var conflictItem = lalrTable.StateAllocator[conflict.State].First(i => i.IsFinal);
+var conflictItem2 = lalrTable.StateAllocator[conflict.State].First(i => !i.IsFinal);
 #else // expr -> num vs num -> num digit
 var conflict = lalrTable.Action.ConflictingTransitions.First(t => t.Terminal.Equals(T_digit));
 var conflictItem = lalrTable.StateAllocator[conflict.State].Items.First(i => i.IsFinal);

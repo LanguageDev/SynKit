@@ -36,32 +36,23 @@ public static class LrParsingTable
             var state = itemSetPair.State;
 
             // Terminal advance
-            var itemsWithTerminals = itemSet.Items
-                .Where(prod => prod.AfterCursor is Symbol.Terminal)
-                .GroupBy(prod => prod.AfterCursor);
-            foreach (var group in itemsWithTerminals)
+            foreach (var group in itemSet.ShiftItems)
             {
-                var term = (Symbol.Terminal)group.Key!;
                 var nextSet = Lr0Closure(grammar, group.Select(i => i.Next));
                 if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
-                actionTable[state, term].Add(new LrAction.Shift(nextState));
+                actionTable[state, group.Key].Add(new LrAction.Shift(nextState));
             }
 
             // Nonterminal advance
-            var itemsWithNonterminals = itemSet.Items
-                .Where(prod => prod.AfterCursor is Symbol.Nonterminal)
-                .GroupBy(prod => prod.AfterCursor);
-            foreach (var group in itemsWithNonterminals)
+            foreach (var group in itemSet.ProductionItems)
             {
-                var nonterm = (Symbol.Nonterminal)group.Key!;
                 var nextSet = Lr0Closure(grammar, group.Select(i => i.Next));
                 if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
-                gotoTable[state, nonterm] = nextState;
+                gotoTable[state, group.Key] = nextState;
             }
 
             // Final items
-            var finalItems = itemSet.Items.Where(prod => prod.IsFinal);
-            foreach (var finalItem in finalItems)
+            foreach (var finalItem in itemSet.ReductionItems)
             {
                 if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {
@@ -103,32 +94,23 @@ public static class LrParsingTable
             var state = itemSetPair.State;
 
             // Terminal advance
-            var itemsWithTerminals = itemSet.Items
-                .Where(prod => prod.AfterCursor is Symbol.Terminal)
-                .GroupBy(prod => prod.AfterCursor);
-            foreach (var group in itemsWithTerminals)
+            foreach (var group in itemSet.ShiftItems)
             {
-                var term = (Symbol.Terminal)group.Key!;
                 var nextSet = Lr0Closure(grammar, group.Select(i => i.Next));
                 if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
-                actionTable[state, term].Add(new LrAction.Shift(nextState));
+                actionTable[state, group.Key].Add(new LrAction.Shift(nextState));
             }
 
             // Nonterminal advance
-            var itemsWithNonterminals = itemSet.Items
-                .Where(prod => prod.AfterCursor is Symbol.Nonterminal)
-                .GroupBy(prod => prod.AfterCursor);
-            foreach (var group in itemsWithNonterminals)
+            foreach (var group in itemSet.ProductionItems)
             {
-                var nonterm = (Symbol.Nonterminal)group.Key!;
                 var nextSet = Lr0Closure(grammar, group.Select(i => i.Next));
                 if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
-                gotoTable[state, nonterm] = nextState;
+                gotoTable[state, group.Key] = nextState;
             }
 
             // Final items
-            var finalItems = itemSet.Items.Where(prod => prod.IsFinal);
-            foreach (var finalItem in finalItems)
+            foreach (var finalItem in itemSet.ReductionItems)
             {
                 if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {
@@ -153,9 +135,7 @@ public static class LrParsingTable
     /// <returns>The LALR table for <paramref name="grammar"/>.</returns>
     public static LrParsingTable<LalrItem> Lalr(ContextFreeGrammar grammar)
     {
-        LrItemSet<Lr0Item> ToKernelSet(LrItemSet<Lr0Item> itemSet) => new(itemSet.Items
-            .Where(i => i.IsKernel)
-            .ToHashSet());
+        static LrItemSet<Lr0Item> ToKernelSet(LrItemSet<Lr0Item> itemSet) => new(itemSet.KernelItems);
 
         var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
 
@@ -175,27 +155,19 @@ public static class LrParsingTable
             var state = itemSetPair.State;
 
             // Terminal advance
-            var itemsWithTerminals = itemSet.Items
-                .Where(prod => prod.AfterCursor is Symbol.Terminal)
-                .GroupBy(prod => prod.AfterCursor);
-            foreach (var group in itemsWithTerminals)
+            foreach (var group in itemSet.ShiftItems)
             {
-                var term = (Symbol.Terminal)group.Key!;
                 var nextSet = Lr0Closure(grammar, group.Select(i => i.Next));
                 if (lr0StateAllocator.Allocate(ToKernelSet(nextSet), out var nextState)) stk.Push((nextSet, nextState));
-                actionTable[state, term].Add(new LrAction.Shift(nextState));
+                actionTable[state, group.Key].Add(new LrAction.Shift(nextState));
             }
 
             // Nonterminal advance
-            var itemsWithNonterminals = itemSet.Items
-                .Where(prod => prod.AfterCursor is Symbol.Nonterminal)
-                .GroupBy(prod => prod.AfterCursor);
-            foreach (var group in itemsWithNonterminals)
+            foreach (var group in itemSet.ProductionItems)
             {
-                var nonterm = (Symbol.Nonterminal)group.Key!;
                 var nextSet = Lr0Closure(grammar, group.Select(i => i.Next));
                 if (lr0StateAllocator.Allocate(ToKernelSet(nextSet), out var nextState)) stk.Push((nextSet, nextState));
-                gotoTable[state, nonterm] = nextState;
+                gotoTable[state, group.Key] = nextState;
             }
         }
 
@@ -208,7 +180,7 @@ public static class LrParsingTable
         var lalrItemSets = new Dictionary<(LrState, Lr0Item), LalrItem>();
         foreach (var state in lr0StateAllocator.States)
         {
-            foreach (var item in lr0StateAllocator[state].Items)
+            foreach (var item in lr0StateAllocator[state])
             {
                 // If there are spontaneous terminal generations, we add that here
                 if (!generatesFrom.TryGetValue((state, item), out var lookaheads)) lookaheads = new();
@@ -238,7 +210,7 @@ public static class LrParsingTable
         var stateAllocator = new LrStateAllocator<LalrItem>();
         foreach (var state in lr0StateAllocator.States)
         {
-            var lalrItemSet = lr0StateAllocator[state].Items
+            var lalrItemSet = lr0StateAllocator[state]
                 .Select(i => lalrItemSets[(state, i)])
                 .ToHashSet();
             // NOTE: We depend on the fact that the order is the same
@@ -251,8 +223,7 @@ public static class LrParsingTable
         {
             var itemSet = stateAllocator[state];
             // Final items
-            var finalItems = itemSet.Items.Where(prod => prod.IsFinal);
-            foreach (var finalItem in finalItems)
+            foreach (var finalItem in itemSet.ReductionItems)
             {
                 if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {
@@ -294,32 +265,23 @@ public static class LrParsingTable
             var state = itemSetPair.State;
 
             // Terminal advance
-            var itemsWithTerminals = itemSet.Items
-                .Where(prod => prod.AfterCursor is Symbol.Terminal)
-                .GroupBy(prod => prod.AfterCursor);
-            foreach (var group in itemsWithTerminals)
+            foreach (var group in itemSet.ShiftItems)
             {
-                var term = (Symbol.Terminal)group.Key!;
                 var nextSet = ClrClosure(grammar, group.Select(i => i.Next));
                 if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
-                actionTable[state, term].Add(new LrAction.Shift(nextState));
+                actionTable[state, group.Key].Add(new LrAction.Shift(nextState));
             }
 
             // Nonterminal advance
-            var itemsWithNonterminals = itemSet.Items
-                .Where(prod => prod.AfterCursor is Symbol.Nonterminal)
-                .GroupBy(prod => prod.AfterCursor);
-            foreach (var group in itemsWithNonterminals)
+            foreach (var group in itemSet.ProductionItems)
             {
-                var nonterm = (Symbol.Nonterminal)group.Key!;
                 var nextSet = ClrClosure(grammar, group.Select(i => i.Next));
                 if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
-                gotoTable[state, nonterm] = nextState;
+                gotoTable[state, group.Key] = nextState;
             }
 
             // Final items
-            var finalItems = itemSet.Items.Where(prod => prod.IsFinal);
-            foreach (var finalItem in finalItems)
+            foreach (var finalItem in itemSet.ReductionItems)
             {
                 if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {
@@ -344,7 +306,7 @@ public static class LrParsingTable
         ContextFreeGrammar grammar,
         Lr0Item item) => new(ClrClosure(
             grammar,
-            new[] { new ClrItem(item.Production, item.Cursor, Symbol.Terminal.NotInGrammar) }).Items
+            new[] { new ClrItem(item.Production, item.Cursor, Symbol.Terminal.NotInGrammar) })
             .GroupBy(item => new Lr0Item(item.Production, item.Cursor))
             .Select(g => new LalrItem(g.Key.Production, g.Key.Cursor, g.Select(i => i.Lookahead).ToHashSet()))
             .ToHashSet());
@@ -417,10 +379,10 @@ public static class LrParsingTable
         foreach (var fromState in lr0Table.StateAllocator.States)
         {
             var kernelItems = lr0Table.StateAllocator[fromState];
-            foreach (var kernelItem in kernelItems.Items)
+            foreach (var kernelItem in kernelItems)
             {
                 var kernelClosure = LalrClosure(lr0Table.Grammar, kernelItem);
-                foreach (var closureItem in kernelClosure.Items)
+                foreach (var closureItem in kernelClosure)
                 {
                     if (closureItem.IsFinal) continue;
 
