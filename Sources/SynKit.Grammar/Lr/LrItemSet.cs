@@ -1,3 +1,5 @@
+using SynKit.Grammar.Lr.Items;
+
 namespace SynKit.Grammar.Lr;
 
 /// <summary>

@@ -1,4 +1,5 @@
 using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Lr.Items;
 using System.Diagnostics;
 
 namespace SynKit.Grammar.Lr;

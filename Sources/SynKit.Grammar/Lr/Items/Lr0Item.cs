@@ -1,6 +1,6 @@
 using SynKit.Grammar.Cfg;
 
-namespace SynKit.Grammar.Lr;
+namespace SynKit.Grammar.Lr.Items;
 
 /// <summary>
 /// An LR(0) item.

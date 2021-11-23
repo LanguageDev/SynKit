@@ -1,3 +1,4 @@
+using SynKit.Grammar.Lr.Items;
 using System.Text;
 
 namespace SynKit.Grammar.Lr;

@@ -1,4 +1,5 @@
 using SynKit.Grammar.Lr;
+using SynKit.Grammar.Lr.Items;
 using Xunit;
 
 namespace SynKit.Grammar.Tests;

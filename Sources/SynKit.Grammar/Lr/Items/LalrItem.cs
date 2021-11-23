@@ -1,7 +1,6 @@
 using SynKit.Grammar.Cfg;
-using System.Text;
 
-namespace SynKit.Grammar.Lr;
+namespace SynKit.Grammar.Lr.Items;
 
 /// <summary>
 /// An LALR item.

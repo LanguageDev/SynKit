@@ -1,5 +1,6 @@
 using SynKit.Grammar.Cfg;
 using SynKit.Grammar.Lr;
+using SynKit.Grammar.Lr.Items;
 using System;
 using System.Linq;
 using Xunit;
