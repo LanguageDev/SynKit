@@ -14,8 +14,7 @@ public sealed record LalrItem(Production Production, int Cursor, IReadOnlySet<Sy
     /// <inheritdoc/>
     public bool Equals(LalrItem? other) =>
            other is not null
-        && this.Production.Equals(other.Production)
-        && this.Cursor == other.Cursor
+        && base.Equals(other)
         && this.Lookaheads.SetEquals(other.Lookaheads);
 
     /// <inheritdoc/>
