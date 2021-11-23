@@ -28,7 +28,17 @@ public interface ILrItem
     public bool IsFinal { get; }
 
     /// <summary>
+    /// True, if this is a kernel item.
+    /// </summary>
+    public bool IsKernel { get; }
+
+    /// <summary>
     /// The symbol after the cursor. Null, if the cursor is at the end.
     /// </summary>
     public Symbol? AfterCursor { get; }
+
+    /// <summary>
+    /// Retrieves the next item, with the cursor advanced one.
+    /// </summary>
+    public ILrItem Next { get; }
 }

@@ -6,22 +6,11 @@ namespace SynKit.Grammar.Lr;
 /// <summary>
 /// An LALR item.
 /// </summary>
-public sealed record LalrItem(Production Production, int Cursor, IReadOnlySet<Symbol.Terminal> Lookaheads) : ILrItem
+public sealed record LalrItem(Production Production, int Cursor, IReadOnlySet<Symbol.Terminal> Lookaheads)
+    : LrItemBase<LalrItem>(Production, Cursor)
 {
     /// <inheritdoc/>
-    public bool IsInitial => this.Cursor == 0;
-
-    /// <inheritdoc/>
-    public bool IsFinal => this.Cursor == this.Production.Right.Count;
-
-    /// <inheritdoc/>
-    public Symbol? AfterCursor => this.IsFinal ? null : this.Production.Right[this.Cursor];
-
-    /// <summary>
-    /// Retrieves the next item, with the cursor advanced one.
-    /// </summary>
-    public LalrItem Next =>
-        new(this.Production, Math.Min(this.Cursor + 1, this.Production.Right.Count), this.Lookaheads);
+    protected override LalrItem MakeWithCursor(int cursor) => new(this.Production, cursor, this.Lookaheads);
 
     /// <inheritdoc/>
     public bool Equals(LalrItem? other) =>
@@ -44,17 +33,6 @@ public sealed record LalrItem(Production Production, int Cursor, IReadOnlySet<Sy
     }
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-        var sb = new StringBuilder();
-        sb.Append(this.Production.Left).Append(" ->");
-        for (var i = 0; i < this.Production.Right.Count; ++i)
-        {
-            if (this.Cursor == i) sb.Append(" _");
-            sb.Append(' ').Append(this.Production.Right[i]);
-        }
-        if (this.IsFinal) sb.Append(" _");
-        sb.Append(", ").Append((this.Lookaheads.Count == 0 ? "ε" : string.Join("/", this.Lookaheads)));
-        return sb.ToString();
-    }
+    public override string ToString() =>
+        $"{base.ToString()}, {(this.Lookaheads.Count == 0 ? "ε" : string.Join(" / ", this.Lookaheads))}";
 }

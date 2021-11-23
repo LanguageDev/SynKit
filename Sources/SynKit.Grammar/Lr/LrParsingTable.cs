@@ -153,7 +153,7 @@ public static class LrParsingTable
     public static LrParsingTable<LalrItem> Lalr(ContextFreeGrammar grammar)
     {
         LrItemSet<Lr0Item> ToKernelSet(LrItemSet<Lr0Item> itemSet) => new(itemSet.Items
-            .Where(i => IsKernel(grammar, i))
+            .Where(i => i.IsKernel)
             .ToHashSet());
 
         var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
@@ -395,10 +395,6 @@ public static class LrParsingTable
         // Yield returns
         foreach (var term in firstSet.OfType<Symbol.Terminal>()) yield return new(prod, 0, term);
     }
-
-    private static bool IsKernel<TItem>(ContextFreeGrammar grammar, TItem item)
-        where TItem : ILrItem => item.Production.Left.Equals(Symbol.Nonterminal.Start)
-                              || !item.IsInitial;
 
     private record struct LookaheadInfo(
         Dictionary<(LrState State, Lr0Item Item), HashSet<Symbol.Terminal>> GeneratesFrom,
