@@ -24,7 +24,6 @@ public class FirstFollowSetTests
     public void FirstSetTests(string grammarText, string[] firstSets)
     {
         var cfg = TestUtils.ParseCfg(grammarText);
-        cfg.StartSymbol = new("E");
 
         // Test terminal first set
         foreach (var term in cfg.Terminals)
@@ -59,7 +58,6 @@ public class FirstFollowSetTests
     public void FollowSetTests(string grammarText, string[] followSets)
     {
         var cfg = TestUtils.ParseCfg(grammarText);
-        cfg.StartSymbol = new("E");
 
         foreach (var followSetText in followSets)
         {

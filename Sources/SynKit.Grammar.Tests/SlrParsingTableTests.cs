@@ -9,7 +9,6 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
     public void FromLr0Grammar()
     {
         var grammar = TestUtils.ParseCfg(Lr0Grammar);
-        grammar.StartSymbol = new("S'");
         var table = LrParsingTable.Slr(grammar);
 
         // Assert state count
@@ -19,7 +18,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         AssertState(
             table,
             out var i0,
-            "S' -> _ S",
+            "START -> _ S",
             "S -> _ a S b",
             "S -> _ a S c",
             "S -> _ d b");
@@ -38,7 +37,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         AssertState(
             table,
             out var i3,
-            "S' -> S _");
+            "START -> S _");
         AssertState(
             table,
             out var i4,
@@ -82,7 +81,6 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
     public void FromSlrGrammar()
     {
         var grammar = TestUtils.ParseCfg(SlrGrammar);
-        grammar.StartSymbol = new("S'");
         var table = LrParsingTable.Slr(grammar);
 
         // Assert state count
@@ -92,7 +90,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         AssertState(
             table,
             out var i0,
-            "S' -> _ S",
+            "START -> _ S",
             "S -> _ E",
             "E -> _ 1 E",
             "E -> _ 1");
@@ -106,7 +104,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         AssertState(
             table,
             out var i2,
-            "S' -> S _");
+            "START -> S _");
         AssertState(
             table,
             out var i3,
@@ -134,7 +132,6 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
     public void FromLalrGrammar()
     {
         var grammar = TestUtils.ParseCfg(LalrGrammar);
-        grammar.StartSymbol = new("S'");
         var table = LrParsingTable.Slr(grammar);
 
         // Assert state count
@@ -144,7 +141,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         AssertState(
             table,
             out var i0,
-            "S' -> _ S",
+            "START -> _ S",
             "S -> _ a A c",
             "S -> _ a B d",
             "S -> _ B c",
@@ -163,7 +160,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         AssertState(
             table,
             out var i3,
-            "S' -> S _");
+            "START -> S _");
         AssertState(
             table,
             out var i4,
@@ -221,7 +218,6 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
     public void FromClrGrammar()
     {
         var grammar = TestUtils.ParseCfg(ClrGrammar);
-        grammar.StartSymbol = new("S'");
         var table = LrParsingTable.Slr(grammar);
 
         // Assert state count
@@ -231,7 +227,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         AssertState(
             table,
             out var i0,
-            "S' -> _ S",
+            "START -> _ S",
             "S -> _ a E a",
             "S -> _ b E b",
             "S -> _ a F b",
@@ -253,7 +249,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         AssertState(
             table,
             out var i3,
-            "S' -> S _");
+            "START -> S _");
         AssertState(
             table,
             out var i4,

@@ -23,7 +23,7 @@ internal class TestUtils
             .ToList();
         var ruleNames = arrowPositions
             .Select(pos => tokens[pos - 1])
-            .ToHashSet();
+            .ToList();
         for (var i = 0; i < arrowPositions.Count; ++i)
         {
             var arrowPosition = arrowPositions[i];
@@ -50,13 +50,15 @@ internal class TestUtils
                 productions.RemoveRange(0, end);
             }
         }
+        result.AddProduction(new(Symbol.Nonterminal.Start, new Symbol[] { new Symbol.Nonterminal(ruleNames[0]) }));
         return result;
     }
 
     public static Production ParseProduction(ContextFreeGrammar cfg, string text)
     {
         var parts = text.Split("->");
-        var left = new Symbol.Nonterminal(parts[0].Trim());
+        var leftPart = parts[0].Trim();
+        var left = leftPart == "START" ? Symbol.Nonterminal.Start : new Symbol.Nonterminal(parts[0].Trim());
         var rightParts = parts[1].Trim().Split(" ").Select(p => p.Trim());
         var right = new List<Symbol>();
         foreach (var part in rightParts)
@@ -83,7 +85,11 @@ internal class TestUtils
     {
         var parts = text.Split(", ");
         var lr0 = ParseLr0Item(cfg, parts[0]);
-        var lookaheads = parts[1].Split("/").Select(t => t.Trim() == "$" ? Symbol.Terminal.EndOfInput : new Symbol.Terminal(t.Trim()));
+        var lookaheads = parts[1].Split("/").Select(t => t.Trim() switch
+        {
+            "$" => Symbol.Terminal.EndOfInput,
+            string s => new Symbol.Terminal(s),
+        });
         return new(lr0.Production, lr0.Cursor, lookaheads.ToHashSet());
     }
 

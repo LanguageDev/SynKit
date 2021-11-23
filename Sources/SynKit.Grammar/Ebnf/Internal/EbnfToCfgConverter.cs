@@ -21,7 +21,7 @@ internal sealed class EbnfToCfgConverter
         if (this.ebnfGrammar.StartRule is null) throw new InvalidOperationException("The starting rule of the eBNF grammar is not set.");
         this.CheckRulePresence(this.ebnfGrammar.StartRule);
 
-        this.cfg.StartSymbol = new(this.ebnfGrammar.StartRule);
+        this.cfg.AddProduction(new(Symbol.Nonterminal.Start, new Symbol[] { new Symbol.Nonterminal(this.ebnfGrammar.StartRule) }));
         foreach (var (name, ast) in this.ebnfGrammar.Rules) this.ConvertRule(name, ast);
         return this.cfg;
     }

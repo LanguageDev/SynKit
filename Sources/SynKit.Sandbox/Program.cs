@@ -17,7 +17,7 @@ var T_digit = new Symbol.Terminal("digit");
 var T_arr = new Symbol.Terminal("arr");
 
 var cfg = new ContextFreeGrammar();
-cfg.StartSymbol = new("stmt");
+cfg.AddProduction(new(Symbol.Nonterminal.Start, new[] { stmt }));
 cfg.AddProduction(new(stmt, new Symbol[] { T_if, expr, T_then, stmt, T_else, stmt }));
 cfg.AddProduction(new(stmt, new Symbol[] { T_if, expr, T_then, stmt }));
 cfg.AddProduction(new(stmt, new Symbol[] { expr, T_q, stmt, stmt }));
@@ -26,7 +26,6 @@ cfg.AddProduction(new(expr, new Symbol[] { num }));
 cfg.AddProduction(new(expr, new Symbol[] { expr, T_plus, expr }));
 cfg.AddProduction(new(num, new Symbol[] { T_digit }));
 cfg.AddProduction(new(num, new Symbol[] { num, T_digit }));
-cfg.AugmentStartSymbol();
 
 Console.WriteLine(cfg);
 Console.WriteLine("==================");

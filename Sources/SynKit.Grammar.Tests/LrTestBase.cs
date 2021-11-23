@@ -12,21 +12,18 @@ public abstract class LrTestBase<TItem>
     /* Test grammars */
 
     public const string Lr0Grammar = @"
-S' -> S
 S -> a S b
 S -> a S c
 S -> d b
 ";
 
     public const string SlrGrammar = @"
-S' -> S
 S -> E
 E -> 1 E
 E -> 1
 ";
 
     public const string LalrGrammar = @"
-S' -> S
 S -> a A c
 S -> a B d
 S -> B c
@@ -35,7 +32,6 @@ B -> z
 ";
 
     public const string ClrGrammar = @"
-S' -> S
 S -> a E a
 S -> b E b
 S -> a F b

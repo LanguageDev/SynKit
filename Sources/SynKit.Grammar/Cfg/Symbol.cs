@@ -40,14 +40,20 @@ public abstract record Symbol
     /// <param name="Value">The value identifying the nonterminal.</param>
     public sealed record Nonterminal(object Value) : Symbol
     {
+        /// <summary>
+        /// The start symbol nonterminal.
+        /// </summary>
+        public static Nonterminal Start { get; } = new(new Marker("START"));
+
         /// <inheritdoc/>
         public override string ToString() => this.Value.ToString() ?? "null";
 
         /// <summary>
         /// Creates a fresh nonterminal symbol from this one.
         /// </summary>
+        /// <param name="suffix">An optional suffix to visually differentiate the created rule.</param>
         /// <returns>A nonterminal, that is different from this.</returns>
-        public Nonterminal Fresh() => new(new Marker($"{this.Value}'"));
+        public Nonterminal Fresh(string suffix = "'") => new(new Marker($"{this.Value}{suffix}"));
     }
 
     /// <summary>

@@ -17,9 +17,7 @@ public static class LrParsingTable
     /// <returns>The LR(0) table for <paramref name="grammar"/>.</returns>
     public static LrParsingTable<Lr0Item> Lr0(ContextFreeGrammar grammar)
     {
-        if (grammar.StartSymbol is null) throw new InvalidOperationException("The grammar must have a start symbol!");
-
-        var startProductions = grammar.GetProductions(grammar.StartSymbol);
+        var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
 
         var stateAllocator = new LrStateAllocator<Lr0Item>();
         var actionTable = new LrActionTable();
@@ -64,7 +62,7 @@ public static class LrParsingTable
             var finalItems = itemSet.Items.Where(prod => prod.IsFinal);
             foreach (var finalItem in finalItems)
             {
-                if (finalItem.Production.Left.Equals(grammar.StartSymbol))
+                if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {
                     actionTable[state, Symbol.Terminal.EndOfInput].Add(LrAction.Accept.Instance);
                 }
@@ -86,9 +84,7 @@ public static class LrParsingTable
     /// <returns>The SLR table for <paramref name="grammar"/>.</returns>
     public static LrParsingTable<Lr0Item> Slr(ContextFreeGrammar grammar)
     {
-        if (grammar.StartSymbol is null) throw new InvalidOperationException("The grammar must have a start symbol!");
-
-        var startProductions = grammar.GetProductions(grammar.StartSymbol);
+        var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
 
         var stateAllocator = new LrStateAllocator<Lr0Item>();
         var actionTable = new LrActionTable();
@@ -133,7 +129,7 @@ public static class LrParsingTable
             var finalItems = itemSet.Items.Where(prod => prod.IsFinal);
             foreach (var finalItem in finalItems)
             {
-                if (finalItem.Production.Left.Equals(grammar.StartSymbol))
+                if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {
                     actionTable[state, Symbol.Terminal.EndOfInput].Add(LrAction.Accept.Instance);
                 }
@@ -160,9 +156,7 @@ public static class LrParsingTable
             .Where(i => IsKernel(grammar, i))
             .ToHashSet());
 
-        if (grammar.StartSymbol is null) throw new InvalidOperationException("The grammar must have a start symbol!");
-
-        var startProductions = grammar.GetProductions(grammar.StartSymbol);
+        var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
 
         var lr0StateAllocator = new LrStateAllocator<Lr0Item>();
         var actionTable = new LrActionTable();
@@ -259,7 +253,7 @@ public static class LrParsingTable
             var finalItems = itemSet.Items.Where(prod => prod.IsFinal);
             foreach (var finalItem in finalItems)
             {
-                if (finalItem.Production.Left.Equals(grammar.StartSymbol))
+                if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {
                     actionTable[state, Symbol.Terminal.EndOfInput].Add(LrAction.Accept.Instance);
                 }
@@ -281,9 +275,7 @@ public static class LrParsingTable
     /// <returns>The CLR table for <paramref name="grammar"/>.</returns>
     public static LrParsingTable<ClrItem> Clr(ContextFreeGrammar grammar)
     {
-        if (grammar.StartSymbol is null) throw new InvalidOperationException("The grammar must have a start symbol!");
-
-        var startProductions = grammar.GetProductions(grammar.StartSymbol);
+        var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
 
         var stateAllocator = new LrStateAllocator<ClrItem>();
         var actionTable = new LrActionTable();
@@ -328,7 +320,7 @@ public static class LrParsingTable
             var finalItems = itemSet.Items.Where(prod => prod.IsFinal);
             foreach (var finalItem in finalItems)
             {
-                if (finalItem.Production.Left.Equals(grammar.StartSymbol))
+                if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {
                     actionTable[state, Symbol.Terminal.EndOfInput].Add(LrAction.Accept.Instance);
                 }
@@ -405,7 +397,7 @@ public static class LrParsingTable
     }
 
     private static bool IsKernel<TItem>(ContextFreeGrammar grammar, TItem item)
-        where TItem : ILrItem => item.Production.Left.Equals(grammar.StartSymbol)
+        where TItem : ILrItem => item.Production.Left.Equals(Symbol.Nonterminal.Start)
                               || !item.IsInitial;
 
     private record struct LookaheadInfo(
@@ -418,7 +410,7 @@ public static class LrParsingTable
         var propagatesFrom = new Dictionary<(LrState State, Lr0Item Item), List<(LrState State, Lr0Item Item)>>();
 
         // $ generates from the initial item
-        var initialProductions = lr0Table.Grammar.GetProductions(lr0Table.Grammar.StartSymbol!);
+        var initialProductions = lr0Table.Grammar.GetProductions(Symbol.Nonterminal.Start);
         var initialItems = initialProductions.Select(p => new Lr0Item(p, 0));
         foreach (var initialItem in initialItems)
         {
