@@ -24,7 +24,7 @@ public sealed partial class ContextFreeGrammar
     public IEnumerable<Production> Productions => this.productions.Values.SelectMany(x => x);
 
     private readonly HashSet<Symbol.Terminal> terminals = new() { Symbol.Terminal.EndOfInput };
-    private readonly HashSet<Symbol.Nonterminal> nonterminals = new();
+    private readonly HashSet<Symbol.Nonterminal> nonterminals = new() { Symbol.Nonterminal.Start };
     private readonly Dictionary<Symbol.Nonterminal, HashSet<Production>> productions = new();
 
     /// <inheritdoc/>
