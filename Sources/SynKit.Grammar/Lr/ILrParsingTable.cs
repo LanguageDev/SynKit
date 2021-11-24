@@ -1,21 +1,27 @@
 using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Lr.Items;
 
 namespace SynKit.Grammar.Lr;
 
 /// <summary>
-/// An LR parsing table that just containst the action and goto tables, nothing more.
+/// An LR parsing table that contains the action and goto tables.
 /// </summary>
 public interface ILrParsingTable
 {
     /// <summary>
-    /// The grammar this table was generated from.
+    /// The terminals that can be found in this table.
     /// </summary>
-    public ContextFreeGrammar Grammar { get; }
+    public IReadOnlySet<Symbol.Terminal> Terminals { get; }
 
     /// <summary>
-    /// The states in the table.
+    /// The nonterminals that can be found in this table.
     /// </summary>
-    public IReadOnlyCollection<LrState> States { get; }
+    public IReadOnlySet<Symbol.Nonterminal> Nonterminals { get; }
+
+    /// <summary>
+    /// The states and their associated item sets in the table.
+    /// </summary>
+    public IReadOnlyCollection<LrStateItemSet<ILrItem>> StateItemSets { get; }
 
     /// <summary>
     /// The LR action table.

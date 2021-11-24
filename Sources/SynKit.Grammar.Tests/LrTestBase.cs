@@ -55,15 +55,20 @@ F -> e
     /* Assertions */
 
     protected static void AssertState(
+        ContextFreeGrammar grammar,
         LrParsingTable<TItem> table,
         out LrState state,
         params string[] itemTexts)
     {
         var itemSet = itemTexts
-            .Select(t => ParseItem(table.Grammar, t))
+            .Select(t => ParseItem(grammar, t))
             .OfType<TItem>()
             .ToHashSet();
-        Assert.False(table.StateAllocator.Allocate(new LrItemSet<TItem>(itemSet), out state));
+        var found = table.StateItemSets
+            .Where(si => si.ItemSet.SetEquals(itemSet))
+            .GetEnumerator();
+        Assert.True(found.MoveNext());
+        state = found.Current.State;
     }
 
     protected static void AssertAction(

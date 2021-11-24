@@ -1,13 +1,14 @@
 using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Lr.Items;
 using System.Collections;
 
-namespace SynKit.Grammar.Lr.Items;
+namespace SynKit.Grammar.Lr;
 
 /// <summary>
 /// A generic LR item set implementation.
 /// </summary>
 /// <typeparam name="TItem">The LR item type.</typeparam>
-public sealed class LrItemSet<TItem> : ILrItemSet<TItem>, IReadOnlySet<TItem>, IEquatable<LrItemSet<TItem>>
+public readonly struct LrItemSet<TItem> : IReadOnlySet<TItem>, IEquatable<LrItemSet<TItem>>
     where TItem : ILrItem
 {
     /// <inheritdoc/>
@@ -53,12 +54,11 @@ public sealed class LrItemSet<TItem> : ILrItemSet<TItem>, IReadOnlySet<TItem>, I
     public override string ToString() => string.Join("\n", this.items);
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj) => this.Equals(obj as LrItemSet<TItem>);
+    public override bool Equals(object? obj) => obj is LrItemSet<TItem> other && this.Equals(other);
 
     /// <inheritdoc/>
-    public bool Equals(LrItemSet<TItem>? other) =>
-           other is not null
-        && this.items.Count == other.items.Count
+    public bool Equals(LrItemSet<TItem> other) =>
+           this.items.Count == other.items.Count
         && this.items.SetEquals(other.items);
 
     /// <inheritdoc/>

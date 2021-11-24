@@ -13,40 +13,48 @@ public class LalrParsingTableTests : LrTestBase<LalrItem>
         var table = LrParsingTable.Lalr(grammar);
 
         // Assert state count
-        Assert.Equal(8, table.StateAllocator.States.Count);
+        Assert.Equal(8, table.StateItemSets.Count);
 
         // Assert item sets
         AssertState(
+            grammar,
             table,
             out var i0,
             "START -> _ S, $");
         AssertState(
+            grammar,
             table,
             out var i1,
             "S -> a _ S b, b/c/$",
             "S -> a _ S c, b/c/$");
         AssertState(
+            grammar,
             table,
             out var i2,
             "S -> d _ b, b/c/$");
         AssertState(
+            grammar,
             table,
             out var i3,
             "START -> S _, $");
         AssertState(
+            grammar,
             table,
             out var i4,
             "S -> d b _, b/c/$");
         AssertState(
+            grammar,
             table,
             out var i5,
             "S -> a S _ b, b/c/$",
             "S -> a S _ c, b/c/$");
         AssertState(
+            grammar,
             table,
             out var i6,
             "S -> a S b _, b/c/$");
         AssertState(
+            grammar,
             table,
             out var i7,
             "S -> a S c _, b/c/$");
@@ -79,27 +87,32 @@ public class LalrParsingTableTests : LrTestBase<LalrItem>
         var table = LrParsingTable.Lalr(grammar);
 
         // Assert state count
-        Assert.Equal(5, table.StateAllocator.States.Count);
+        Assert.Equal(5, table.StateItemSets.Count);
 
         // Assert item sets
         AssertState(
+            grammar,
             table,
             out var i0,
             "START -> _ S, $");
         AssertState(
+            grammar,
             table,
             out var i1,
             "E -> 1 _ E, $",
             "E -> 1 _, $");
         AssertState(
+            grammar,
             table,
             out var i2,
             "START -> S _, $");
         AssertState(
+            grammar,
             table,
             out var i3,
             "S -> E _, $");
         AssertState(
+            grammar,
             table,
             out var i4,
             "E -> 1 E _, $");
@@ -125,52 +138,63 @@ public class LalrParsingTableTests : LrTestBase<LalrItem>
         var table = LrParsingTable.Lalr(grammar);
 
         // Assert state count
-        Assert.Equal(11, table.StateAllocator.States.Count);
+        Assert.Equal(11, table.StateItemSets.Count);
 
         // Assert item sets
         AssertState(
+            grammar,
             table,
             out var i0,
             "START -> _ S, $");
         AssertState(
+            grammar,
             table,
             out var i1,
             "S -> a _ A c, $",
             "S -> a _ B d, $");
         AssertState(
+            grammar,
             table,
             out var i2,
             "B -> z _, c");
         AssertState(
+            grammar,
             table,
             out var i3,
             "START -> S _, $");
         AssertState(
+            grammar,
             table,
             out var i4,
             "S -> B _ c, $");
         AssertState(
+            grammar,
             table,
             out var i5,
             "S -> B c _, $");
         AssertState(
+            grammar,
             table,
             out var i6,
             "A -> z _, c",
             "B -> z _, d");
         AssertState(
+            grammar,
             table,
             out var i7,
             "S -> a A _ c, $");
         AssertState(
+            grammar,
             table,
             out var i8,
             "S -> a B _ d, $");
         AssertState(
+            grammar,
             table,
             out var i9,
             "S -> a B d _, $");
         AssertState(
+            grammar,
             table,
             out var i10,
             "S -> a A c _, $");
@@ -204,61 +228,74 @@ public class LalrParsingTableTests : LrTestBase<LalrItem>
         var table = LrParsingTable.Lalr(grammar);
 
         // Assert state count
-        Assert.Equal(13, table.StateAllocator.States.Count);
+        Assert.Equal(13, table.StateItemSets.Count);
 
         // Assert item sets
         AssertState(
+            grammar,
             table,
             out var i0,
             "START -> _ S, $");
         AssertState(
+            grammar,
             table,
             out var i1,
             "S -> a _ E a, $",
             "S -> a _ F b, $");
         AssertState(
+            grammar,
             table,
             out var i2,
             "S -> b _ E b, $",
             "S -> b _ F a, $");
         AssertState(
+            grammar,
             table,
             out var i3,
             "START -> S _, $");
         AssertState(
+            grammar,
             table,
             out var i4,
             "E -> e _, a/b",
             "F -> e _, a/b");
         AssertState(
+            grammar,
             table,
             out var i5,
             "S -> b E _ b, $");
         AssertState(
+            grammar,
             table,
             out var i6,
             "S -> b F _ a, $");
         AssertState(
+            grammar,
             table,
             out var i7,
             "S -> b F a _, $");
         AssertState(
+            grammar,
             table,
             out var i8,
             "S -> b E b _, $");
         AssertState(
+            grammar,
             table,
             out var i9,
             "S -> a E _ a, $");
         AssertState(
+            grammar,
             table,
             out var i10,
             "S -> a F _ b, $");
         AssertState(
+            grammar,
             table,
             out var i11,
             "S -> a F b _, $");
         AssertState(
+            grammar,
             table,
             out var i12,
             "S -> a E a _, $");

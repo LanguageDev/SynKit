@@ -1,4 +1,5 @@
 using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Internal;
 using SynKit.Grammar.Lr.Items;
 
 namespace SynKit.Grammar.Lr;
@@ -11,15 +12,19 @@ public sealed class LrParsingTable<TItem> : ILrParsingTable
     where TItem : ILrItem
 {
     /// <inheritdoc/>
-    public ContextFreeGrammar Grammar { get; }
-
-    /// <summary>
-    /// The LR state allocator.
-    /// </summary>
-    public LrStateAllocator<TItem> StateAllocator { get; }
+    public IReadOnlySet<Symbol.Terminal> Terminals { get; }
 
     /// <inheritdoc/>
-    public IReadOnlyCollection<LrState> States => this.StateAllocator.States;
+    public IReadOnlySet<Symbol.Nonterminal> Nonterminals { get; }
+
+    /// <inheritdoc/>
+    public IReadOnlyCollection<LrStateItemSet<TItem>> StateItemSets { get; }
+
+    /// <inheritdoc/>
+    IReadOnlyCollection<LrStateItemSet<ILrItem>> ILrParsingTable.StateItemSets =>
+        new ReadOnlyCollectionView<LrStateItemSet<TItem>, LrStateItemSet<ILrItem>>(
+            this.StateItemSets,
+            i => new(i.State, new(i.ItemSet.Cast<ILrItem>())));
 
     /// <inheritdoc/>
     public LrActionTable Action { get; }
@@ -30,18 +35,21 @@ public sealed class LrParsingTable<TItem> : ILrParsingTable
     /// <summary>
     /// Initializes a new <see cref="LrParsingTable{TItem}"/>.
     /// </summary>
-    /// <param name="grammar">The grammar the table is constructed for.</param>
-    /// <param name="stateAllocator">The state allocator the construction used.</param>
+    /// <param name="terminals">The terminals in this table.</param>
+    /// <param name="nonterminals">The nonterminals in this table.</param>
+    /// <param name="stateItemSets">The state and item set pairs of the automaton the table is based on.</param>
     /// <param name="action">The action table.</param>
     /// <param name="goto">The goto table.</param>
     public LrParsingTable(
-        ContextFreeGrammar grammar,
-        LrStateAllocator<TItem> stateAllocator,
+        IReadOnlySet<Symbol.Terminal> terminals,
+        IReadOnlySet<Symbol.Nonterminal> nonterminals,
+        IReadOnlyCollection<LrStateItemSet<TItem>> stateItemSets,
         LrActionTable action,
         LrGotoTable @goto)
     {
-        this.Grammar = grammar;
-        this.StateAllocator = stateAllocator;
+        this.Terminals = terminals;
+        this.Nonterminals = nonterminals;
+        this.StateItemSets = stateItemSets;
         this.Action = action;
         this.Goto = @goto;
     }

@@ -1,4 +1,5 @@
 using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Lr.Internal;
 using SynKit.Grammar.Lr.Items;
 using System.Diagnostics;
 
@@ -66,7 +67,7 @@ public static class LrParsingTable
             }
         }
 
-        return new(grammar, stateAllocator, actionTable, gotoTable);
+        return new(grammar.Terminals, grammar.Nonterminals, stateAllocator, actionTable, gotoTable);
     }
 
     /// <summary>
@@ -125,7 +126,7 @@ public static class LrParsingTable
             }
         }
 
-        return new(grammar, stateAllocator, actionTable, gotoTable);
+        return new(grammar.Terminals, grammar.Nonterminals, stateAllocator, actionTable, gotoTable);
     }
 
     /// <summary>
@@ -172,8 +173,8 @@ public static class LrParsingTable
         }
 
         // Compute propagation information
-        var lr0Table = new LrParsingTable<Lr0Item>(grammar, lr0StateAllocator, actionTable, gotoTable);
-        var (generatesFrom, propagatesFrom) = GenerateLalrLookaheadInfo(lr0Table);
+        var lr0Table = new LrParsingTable<Lr0Item>(grammar.Terminals, grammar.Nonterminals, lr0StateAllocator, actionTable, gotoTable);
+        var (generatesFrom, propagatesFrom) = GenerateLalrLookaheadInfo(grammar, lr0Table);
 
         // We create an LALR item mapping from the LR0 items
         // At the same time we write the spontaneous terminals into the lookaheads
@@ -237,7 +238,7 @@ public static class LrParsingTable
             }
         }
 
-        return new(grammar, stateAllocator, actionTable, gotoTable);
+        return new(grammar.Terminals, grammar.Nonterminals, stateAllocator, actionTable, gotoTable);
     }
 
     /// <summary>
@@ -295,7 +296,7 @@ public static class LrParsingTable
             }
         }
 
-        return new(grammar, stateAllocator, actionTable, gotoTable);
+        return new(grammar.Terminals, grammar.Nonterminals, stateAllocator, actionTable, gotoTable);
     }
 
     private static LrItemSet<Lr0Item> Lr0Closure(
@@ -363,25 +364,24 @@ public static class LrParsingTable
         Dictionary<(LrState State, Lr0Item Item), HashSet<Symbol.Terminal>> GeneratesFrom,
         Dictionary<(LrState State, Lr0Item Item), List<(LrState State, Lr0Item Item)>> PropagatesFrom);
 
-    private static LookaheadInfo GenerateLalrLookaheadInfo(LrParsingTable<Lr0Item> lr0Table)
+    private static LookaheadInfo GenerateLalrLookaheadInfo(ContextFreeGrammar grammar, LrParsingTable<Lr0Item> lr0Table)
     {
         var generatesFrom = new Dictionary<(LrState State, Lr0Item Item), HashSet<Symbol.Terminal>>();
         var propagatesFrom = new Dictionary<(LrState State, Lr0Item Item), List<(LrState State, Lr0Item Item)>>();
 
         // $ generates from the initial item
-        var initialProductions = lr0Table.Grammar.GetProductions(Symbol.Nonterminal.Start);
+        var initialProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
         var initialItems = initialProductions.Select(p => new Lr0Item(p, 0));
         foreach (var initialItem in initialItems)
         {
             generatesFrom[(LrState.Initial, initialItem)] = new() { Symbol.Terminal.EndOfInput };
         }
 
-        foreach (var fromState in lr0Table.StateAllocator.States)
+        foreach (var (fromState, kernelItems) in lr0Table.StateItemSets)
         {
-            var kernelItems = lr0Table.StateAllocator[fromState];
             foreach (var kernelItem in kernelItems)
             {
-                var kernelClosure = LalrClosure(lr0Table.Grammar, kernelItem);
+                var kernelClosure = LalrClosure(grammar, kernelItem);
                 foreach (var closureItem in kernelClosure)
                 {
                     if (closureItem.IsFinal) continue;

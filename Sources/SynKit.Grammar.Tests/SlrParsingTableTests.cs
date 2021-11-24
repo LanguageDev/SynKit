@@ -13,10 +13,11 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         var table = LrParsingTable.Slr(grammar);
 
         // Assert state count
-        Assert.Equal(8, table.StateAllocator.States.Count);
+        Assert.Equal(8, table.StateItemSets.Count);
 
         // Assert item sets
         AssertState(
+            grammar,
             table,
             out var i0,
             "START -> _ S",
@@ -24,6 +25,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "S -> _ a S c",
             "S -> _ d b");
         AssertState(
+            grammar,
             table,
             out var i1,
             "S -> a _ S b",
@@ -32,27 +34,33 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "S -> _ a S c",
             "S -> _ d b");
         AssertState(
+            grammar,
             table,
             out var i2,
             "S -> d _ b");
         AssertState(
+            grammar,
             table,
             out var i3,
             "START -> S _");
         AssertState(
+            grammar,
             table,
             out var i4,
             "S -> d b _");
         AssertState(
+            grammar,
             table,
             out var i5,
             "S -> a S _ b",
             "S -> a S _ c");
         AssertState(
+            grammar,
             table,
             out var i6,
             "S -> a S b _");
         AssertState(
+            grammar,
             table,
             out var i7,
             "S -> a S c _");
@@ -85,10 +93,11 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         var table = LrParsingTable.Slr(grammar);
 
         // Assert state count
-        Assert.Equal(5, table.StateAllocator.States.Count);
+        Assert.Equal(5, table.StateItemSets.Count);
 
         // Assert item sets
         AssertState(
+            grammar,
             table,
             out var i0,
             "START -> _ S",
@@ -96,6 +105,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "E -> _ 1 E",
             "E -> _ 1");
         AssertState(
+            grammar,
             table,
             out var i1,
             "E -> 1 _ E",
@@ -103,14 +113,17 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "E -> _ 1 E",
             "E -> _ 1");
         AssertState(
+            grammar,
             table,
             out var i2,
             "START -> S _");
         AssertState(
+            grammar,
             table,
             out var i3,
             "S -> E _");
         AssertState(
+            grammar,
             table,
             out var i4,
             "E -> 1 E _");
@@ -136,10 +149,11 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         var table = LrParsingTable.Slr(grammar);
 
         // Assert state count
-        Assert.Equal(11, table.StateAllocator.States.Count);
+        Assert.Equal(11, table.StateItemSets.Count);
 
         // Assert item sets
         AssertState(
+            grammar,
             table,
             out var i0,
             "START -> _ S",
@@ -148,6 +162,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "S -> _ B c",
             "B -> _ z");
         AssertState(
+            grammar,
             table,
             out var i1,
             "S -> a _ A c",
@@ -155,39 +170,48 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "A -> _ z",
             "B -> _ z");
         AssertState(
+            grammar,
             table,
             out var i2,
             "B -> z _");
         AssertState(
+            grammar,
             table,
             out var i3,
             "START -> S _");
         AssertState(
+            grammar,
             table,
             out var i4,
             "S -> B _ c");
         AssertState(
+            grammar,
             table,
             out var i5,
             "S -> B c _");
         AssertState(
+            grammar,
             table,
             out var i6,
             "A -> z _",
             "B -> z _");
         AssertState(
+            grammar,
             table,
             out var i7,
             "S -> a A _ c");
         AssertState(
+            grammar,
             table,
             out var i8,
             "S -> a B _ d");
         AssertState(
+            grammar,
             table,
             out var i9,
             "S -> a B d _");
         AssertState(
+            grammar,
             table,
             out var i10,
             "S -> a A c _");
@@ -222,10 +246,11 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
         var table = LrParsingTable.Slr(grammar);
 
         // Assert state count
-        Assert.Equal(13, table.StateAllocator.States.Count);
+        Assert.Equal(13, table.StateItemSets.Count);
 
         // Assert item sets
         AssertState(
+            grammar,
             table,
             out var i0,
             "START -> _ S",
@@ -234,6 +259,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "S -> _ a F b",
             "S -> _ b F a");
         AssertState(
+            grammar,
             table,
             out var i1,
             "S -> a _ E a",
@@ -241,6 +267,7 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "E -> _ e",
             "F -> _ e");
         AssertState(
+            grammar,
             table,
             out var i2,
             "S -> b _ E b",
@@ -248,43 +275,53 @@ public class SlrParsingTableTests : LrTestBase<Lr0Item>
             "E -> _ e",
             "F -> _ e");
         AssertState(
+            grammar,
             table,
             out var i3,
             "START -> S _");
         AssertState(
+            grammar,
             table,
             out var i4,
             "E -> e _",
             "F -> e _");
         AssertState(
+            grammar,
             table,
             out var i5,
             "S -> b E _ b");
         AssertState(
+            grammar,
             table,
             out var i6,
             "S -> b F _ a");
         AssertState(
+            grammar,
             table,
             out var i7,
             "S -> b F a _");
         AssertState(
+            grammar,
             table,
             out var i8,
             "S -> b E b _");
         AssertState(
+            grammar,
             table,
             out var i9,
             "S -> a E _ a");
         AssertState(
+            grammar,
             table,
             out var i10,
             "S -> a F _ b");
         AssertState(
+            grammar,
             table,
             out var i11,
             "S -> a F b _");
         AssertState(
+            grammar,
             table,
             out var i12,
             "S -> a E a _");
