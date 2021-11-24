@@ -24,6 +24,7 @@ public sealed class LrParsingTable<TItem> : ILrParsingTable
     IReadOnlyCollection<LrStateItemSet<ILrItem>> ILrParsingTable.StateItemSets =>
         new ReadOnlyCollectionView<LrStateItemSet<TItem>, LrStateItemSet<ILrItem>>(
             this.StateItemSets,
+            // TODO: We are allocating a lot here, uselessly
             i => new(i.State, new(i.ItemSet.Cast<ILrItem>())));
 
     /// <inheritdoc/>
