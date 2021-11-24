@@ -96,4 +96,20 @@ public readonly struct LrItemSet<TItem> : IReadOnlySet<TItem>, IEquatable<LrItem
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => this.items.GetEnumerator();
+
+    /// <summary>
+    /// Checks equality between two item sets.
+    /// </summary>
+    /// <param name="left">The first item set to compare.</param>
+    /// <param name="right">The second item set to compare.</param>
+    /// <returns>True, if <paramref name="left"/> and <paramref name="right"/> contain the same LR items.</returns>
+    public static bool operator ==(LrItemSet<TItem> left, LrItemSet<TItem> right) => left.Equals(right);
+
+    /// <summary>
+    /// Checks inequality between two item sets.
+    /// </summary>
+    /// <param name="left">The first item set to compare.</param>
+    /// <param name="right">The second item set to compare.</param>
+    /// <returns>True, if <paramref name="left"/> and <paramref name="right"/> contain different LR items.</returns>
+    public static bool operator !=(LrItemSet<TItem> left, LrItemSet<TItem> right) => !(left == right);
 }
