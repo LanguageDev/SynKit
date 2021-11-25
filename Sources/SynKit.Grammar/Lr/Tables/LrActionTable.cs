@@ -1,6 +1,6 @@
 using SynKit.Grammar.Cfg;
 
-namespace SynKit.Grammar.Lr;
+namespace SynKit.Grammar.Lr.Tables;
 
 /// <summary>
 /// Represents the action table for an LR parser.

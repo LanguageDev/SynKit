@@ -1,15 +1,14 @@
 using SynKit.Grammar.Cfg;
-using SynKit.Grammar.Internal;
 using SynKit.Grammar.Lr.Items;
 
-namespace SynKit.Grammar.Lr;
+namespace SynKit.Grammar.Lr.Tables;
 
 /// <summary>
 /// Represents a table for an LR parser.
 /// </summary>
 /// <typeparam name="TItem">The exact LR item type.</typeparam>
 public sealed class LrParsingTable<TItem> : ILrParsingTable
-    where TItem : ILrItem
+    where TItem : class, ILrItem
 {
     /// <inheritdoc/>
     public IReadOnlySet<Symbol.Terminal> Terminals { get; }
@@ -21,11 +20,7 @@ public sealed class LrParsingTable<TItem> : ILrParsingTable
     public IReadOnlyCollection<LrStateItemSet<TItem>> StateItemSets { get; }
 
     /// <inheritdoc/>
-    IReadOnlyCollection<LrStateItemSet<ILrItem>> ILrParsingTable.StateItemSets =>
-        new ReadOnlyCollectionView<LrStateItemSet<TItem>, LrStateItemSet<ILrItem>>(
-            this.StateItemSets,
-            // TODO: We are allocating a lot here, uselessly
-            i => new(i.State, new(i.ItemSet.Cast<ILrItem>())));
+    IReadOnlyCollection<ILrStateItemSet<ILrItem>> ILrParsingTable.StateItemSets => this.StateItemSets;
 
     /// <inheritdoc/>
     public LrActionTable Action { get; }

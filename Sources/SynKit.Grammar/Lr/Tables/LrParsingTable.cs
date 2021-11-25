@@ -3,7 +3,7 @@ using SynKit.Grammar.Lr.Internal;
 using SynKit.Grammar.Lr.Items;
 using System.Diagnostics;
 
-namespace SynKit.Grammar.Lr;
+namespace SynKit.Grammar.Lr.Tables;
 
 /// <summary>
 /// LR table construction functionality.

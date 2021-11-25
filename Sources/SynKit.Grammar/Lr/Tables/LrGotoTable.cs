@@ -1,6 +1,6 @@
 using SynKit.Grammar.Cfg;
 
-namespace SynKit.Grammar.Lr;
+namespace SynKit.Grammar.Lr.Tables;
 
 /// <summary>
 /// Represents a goto table of an LR parser.

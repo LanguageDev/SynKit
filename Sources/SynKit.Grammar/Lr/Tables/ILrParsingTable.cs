@@ -1,7 +1,7 @@
 using SynKit.Grammar.Cfg;
 using SynKit.Grammar.Lr.Items;
 
-namespace SynKit.Grammar.Lr;
+namespace SynKit.Grammar.Lr.Tables;
 
 /// <summary>
 /// An LR parsing table that contains the action and goto tables.
@@ -21,7 +21,7 @@ public interface ILrParsingTable
     /// <summary>
     /// The states and their associated item sets in the table.
     /// </summary>
-    public IReadOnlyCollection<LrStateItemSet<ILrItem>> StateItemSets { get; }
+    public IReadOnlyCollection<ILrStateItemSet<ILrItem>> StateItemSets { get; }
 
     /// <summary>
     /// The LR action table.

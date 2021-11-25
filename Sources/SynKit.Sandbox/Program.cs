@@ -1,5 +1,6 @@
 using SynKit.Grammar.Cfg;
 using SynKit.Grammar.Lr;
+using SynKit.Grammar.Lr.Tables;
 
 var stmt = new Symbol.Nonterminal("stmt");
 var expr = new Symbol.Nonterminal("expr");

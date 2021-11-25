@@ -8,7 +8,7 @@ namespace SynKit.Grammar.Lr;
 /// A generic LR item set implementation.
 /// </summary>
 /// <typeparam name="TItem">The LR item type.</typeparam>
-public readonly struct LrItemSet<TItem> : IReadOnlySet<TItem>, IEquatable<LrItemSet<TItem>>
+public readonly struct LrItemSet<TItem> : ILrItemSet<TItem>, IReadOnlySet<TItem>, IEquatable<LrItemSet<TItem>>
     where TItem : ILrItem
 {
     /// <inheritdoc/>

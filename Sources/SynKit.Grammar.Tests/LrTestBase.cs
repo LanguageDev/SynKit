@@ -1,6 +1,7 @@
 using SynKit.Grammar.Cfg;
 using SynKit.Grammar.Lr;
 using SynKit.Grammar.Lr.Items;
+using SynKit.Grammar.Lr.Tables;
 using System;
 using System.Linq;
 using Xunit;
@@ -8,7 +9,7 @@ using Xunit;
 namespace SynKit.Grammar.Tests;
 
 public abstract class LrTestBase<TItem>
-        where TItem : ILrItem
+        where TItem : class, ILrItem
 {
     /* Test grammars */
 

@@ -4,7 +4,7 @@ using System.Collections;
 namespace SynKit.Grammar.Lr.Internal;
 
 internal sealed class LrStateAllocator<TItem> : IReadOnlyCollection<LrStateItemSet<TItem>>
-    where TItem : ILrItem
+    where TItem : class, ILrItem
 {
     public int Count => this.States.Count;
 
