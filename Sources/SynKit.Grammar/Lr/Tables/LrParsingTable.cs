@@ -1,4 +1,5 @@
 using SynKit.Grammar.Cfg;
+using SynKit.Grammar.Internal;
 using SynKit.Grammar.Lr.Internal;
 using SynKit.Grammar.Lr.Items;
 using System.Diagnostics;
@@ -299,9 +300,31 @@ public static class LrParsingTable
         return new(grammar.Terminals, grammar.Nonterminals, stateAllocator, actionTable, gotoTable);
     }
 
+    private static IEnumerable<Production> ItemProductions<TItem>(ContextFreeGrammar grammar, TItem item)
+        where TItem : ILrItem => item.AfterCursor is Symbol.Nonterminal nonterm
+        ? grammar.GetProductions(nonterm)
+        : Enumerable.Empty<Production>();
+
     private static LrItemSet<Lr0Item> Lr0Closure(
         ContextFreeGrammar grammar,
-        IEnumerable<Lr0Item> set) => Closure(grammar, set, (item, prod) => new[] { new Lr0Item(prod, 0) });
+        IEnumerable<Lr0Item> set) => new(GraphSearch.Dfs(
+            set,
+            // Simply get all the productions that have the current nonterminal on the left
+            item => ItemProductions(grammar, item).Select(i => new Lr0Item(i, 0))));
+
+    private static LrItemSet<ClrItem> ClrClosure(
+        ContextFreeGrammar grammar,
+        IEnumerable<ClrItem> set) => new(GraphSearch.Dfs(
+            set,
+            item => ItemProductions(grammar, item).SelectMany(prod =>
+            {
+                // Construct the sequence consisting of everything after the nonterminal plus the lookahead
+                var after = item.Production.Right.Skip(item.Cursor + 1).Append(item.Lookahead);
+                // Compute the first-set
+                var firstSet = grammar.FirstSet(after);
+                // Yield returns
+                return firstSet.OfType<Symbol.Terminal>().Select(term => new ClrItem(prod, 0, term));
+            })));
 
     private static LrItemSet<LalrItem> LalrClosure(
         ContextFreeGrammar grammar,
@@ -311,54 +334,6 @@ public static class LrParsingTable
             .GroupBy(item => new Lr0Item(item.Production, item.Cursor))
             .Select(g => new LalrItem(g.Key.Production, g.Key.Cursor, g.Select(i => i.Lookahead).ToHashSet()))
             .ToHashSet());
-
-    private static LrItemSet<ClrItem> ClrClosure(
-        ContextFreeGrammar grammar,
-        IEnumerable<ClrItem> set) => Closure(
-            grammar,
-            set,
-            (item, prod) => GetClrClosureItems(grammar, item, prod));
-
-    // Generic LR closure
-    private static LrItemSet<TItem> Closure<TItem>(
-        ContextFreeGrammar grammar,
-        IEnumerable<TItem> set,
-        Func<TItem, Production, IEnumerable<TItem>> getItems)
-        where TItem : ILrItem
-    {
-        var result = set.ToHashSet();
-        var stk = new Stack<TItem>();
-        foreach (var item in result) stk.Push(item);
-        while (stk.TryPop(out var item))
-        {
-            var afterCursor = item.AfterCursor;
-            if (afterCursor is not Symbol.Nonterminal nonterm) continue;
-            // It must be a nonterminal
-            var prods = grammar.GetProductions(nonterm);
-            foreach (var prod in prods)
-            {
-                var itemsToAdd = getItems(item, prod);
-                foreach (var itemToAdd in itemsToAdd)
-                {
-                    if (result.Add(itemToAdd)) stk.Push(itemToAdd);
-                }
-            }
-        }
-        return new(result);
-    }
-
-    private static IEnumerable<ClrItem> GetClrClosureItems(
-        ContextFreeGrammar grammar,
-        ClrItem item,
-        Production prod)
-    {
-        // Construct the sequence consisting of everything after the nonterminal plus the lookahead
-        var after = item.Production.Right.Skip(item.Cursor + 1).Append(item.Lookahead);
-        // Compute the first-set
-        var firstSet = grammar.FirstSet(after);
-        // Yield returns
-        foreach (var term in firstSet.OfType<Symbol.Terminal>()) yield return new(prod, 0, term);
-    }
 
     private record struct LookaheadInfo(
         Dictionary<(LrState State, Lr0Item Item), HashSet<Symbol.Terminal>> GeneratesFrom,
