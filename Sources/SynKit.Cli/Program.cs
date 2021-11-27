@@ -46,6 +46,6 @@ internal static class Program
         cfg.AddProduction(new(atom, new Symbol[] { T_opaern, expr, T_cpaern }));
         cfg.AddProduction(new(atom, new Symbol[] { T_num }));
 
-        return LrParsingTable.Lalr(cfg);
+        return LrParsingTable.Lr0(cfg);
     }
 }

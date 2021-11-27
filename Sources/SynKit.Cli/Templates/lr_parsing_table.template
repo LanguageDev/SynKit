@@ -5,8 +5,63 @@
     <title>LR parsing table</title>
 
     <style>
+        /* Overall table style */
+        .lr-parsing-table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+        }
+
+        /* All cell styles */
+        .lr-parsing-table th,
         .lr-parsing-table td {
-            border: 1px solid black;
+            border: 1px solid #dddddd;
+            padding: 8px;
+        }
+
+        /* Special horizontal separators with black borders */
+        .lr-parsing-table tr:nth-child(2) th {
+            border-bottom: 1px solid black;
+        }
+
+        /* Special vertical separators with black borders */
+        .lr-parsing-table td:nth-child(1),
+        .lr-parsing-table td:nth-child({{table.terminals.count + 1}}) {
+            border-right: 1px solid black;
+        }
+
+        /* Header cell style */
+        .lr-parsing-table th,
+        .lr-parsing-table td,
+        .lr-parsing-table td:nth-child(1) {
+            text-align: center;
+        }
+
+        /* Action table cells */
+        .lr-parsing-table td:nth-child(n+2) {
+            text-align: left;
+        }
+
+        /* Goto table cells */
+        .lr-parsing-table td:nth-child(n+{{table.terminals.count + 2}}) {
+            text-align: center;
+        }
+
+        /* Conflicting cell style */
+        .conflict-cell {
+            background: #ffc7ce;
+        }
+
+        /* Action table list style */
+        .lr-parsing-table ul {
+            list-style-type: none;
+            padding: 0 5px;
+            margin: 5px 0;
+        }
+
+        /* Action table list item style */
+        .lr-parsing-table ul li {
+            list-style-type: none;
+            margin: 0 2px;
         }
     </style>
 </head>
@@ -32,14 +87,14 @@
         </tr>
         <!-- A row for each state -->
         {{-for si_set in table.state_item_sets}}
-        {{-$state = si_set.state}}
+            {{-$state = si_set.state}}
         <tr>
             <!-- State number -->
             <td>{{$state.id}}</td>
             <!-- Actions with terminals -->
             {{-for t in table.terminals}}
                 {{-$actions = lr_actions(table, $state, t)}}
-            <td>
+            <td{{-if $actions.count > 1}} class="conflict-cell"{{end}}>
                 <ul>
                 {{-for action in $actions}}
                     {{-if is_shift(action)}}
