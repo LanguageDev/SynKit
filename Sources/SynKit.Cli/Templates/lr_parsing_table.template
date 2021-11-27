@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LR parsing table</title>
+
+    <style>
+        .lr-parsing-table td {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <table class="lr-parsing-table">
+        <!-- Action and Goto labels on top  -->
+        <tr>
+            <th></th>
+            <th colspan="{{table.terminals.count}}">Action</th>
+            <th colspan="{{table.nonterminals.count}}">Goto</th>
+        </tr>
+        <!-- State, Terminals..., Nonterminals... -->
+        <tr>
+            <th>State</th>
+            <!-- Terminals -->
+            {{-for t in table.terminals}}
+            <th>{{t}}</th>
+            {{-end}}
+            <!-- Nonterminals -->
+            {{-for nt in table.nonterminals}}
+            <th>{{nt}}</th>
+            {{-end}}
+        </tr>
+        <!-- A row for each state -->
+        {{-for si_set in table.state_item_sets}}
+        {{-$state = si_set.state}}
+        <tr>
+            <!-- State number -->
+            <td>{{$state.id}}</td>
+            <!-- Actions with terminals -->
+            {{-for t in table.terminals}}
+                {{-$actions = lr_actions(table, $state, t)}}
+            <td>
+                <ul>
+                {{-for action in $actions}}
+                    {{-if is_shift(action)}}
+                    <li>S: {{action.state.id}}</li>
+                    {{-else if is_reduce(action)}}
+                    {{-$production = action.production}}
+                    <li>R: {{include('production.template', production: $production)}}</li>
+                    {{-else}}
+                    <li>A</li>
+                    {{-end}}
+                {{-end}}
+                </ul>
+            </td>
+            {{-end}}
+            <!-- Goto with nonterminals -->
+            {{-for nt in table.nonterminals}}
+                {{-$goto = lr_goto(table, $state, nt)}}
+                {{-if $goto == null}}
+            <td></td>
+                {{-else}}
+            <td>{{$goto.id}}</td>
+                {{-end}}
+            {{-end}}
+        </tr>
+        {{-end}}
+    </table>
+</body>

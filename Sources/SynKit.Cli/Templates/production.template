@@ -1,0 +1,8 @@
+{{$.production.left}} → 
+{{-if $.production.right.count == 0-}}
+ε
+{{-else-}}
+    {{-for symbol in $.production.right~}}
+ {{symbol}}
+    {{-end}}
+{{-end-}}
