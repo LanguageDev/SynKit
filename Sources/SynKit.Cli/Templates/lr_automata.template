@@ -1,0 +1,34 @@
+digraph PDA {
+    rankdir=LR;
+    node [shape=rectangle, style=rounded];
+
+    // State nodes
+    {{-for si_set in table.state_item_sets}}
+        {{-$state = si_set.state}}
+        {{-$item_set = si_set.item_set}}
+    {{$state.id}}[xlabel=<I<SUB>{{$state.id}}</SUB>>, label="
+        {{-for item in $item_set-}}
+{{-include('lr_item.template', item: item)-}}\l
+        {{-end-}}
+"]
+    {{-end}}
+
+    // Transitions
+    {{-for si_set in table.state_item_sets}}
+        {{-$state = si_set.state}}
+        {{-for t in table.terminals}}
+            {{-$actions = lr_actions(table, $state, t)}}
+            {{-for action in $actions}}
+                {{-if is_shift(action)}}
+    {{$state.id}} -> {{action.state.id}} [label="{{t}}"]
+                {{-end}}
+            {{-end}}
+        {{-end}}
+        {{-for nt in table.nonterminals}}
+            {{-$to_state = lr_goto(table, $state, nt)}}
+            {{-if $to_state != null}}
+    {{$state.id}} -> {{$to_state.id}} [label="{{nt}}"]
+            {{-end}}
+        {{-end}}
+    {{-end}}
+}

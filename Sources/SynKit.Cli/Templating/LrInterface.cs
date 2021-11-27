@@ -1,13 +1,14 @@
 using SynKit.Grammar.Cfg;
 using SynKit.Grammar.Lr;
+using SynKit.Grammar.Lr.Items;
 using SynKit.Grammar.Lr.Tables;
 
 namespace SynKit.Cli.Templating;
 
 /// <summary>
-/// Interface for reading LR tables in templates.
+/// Interface for LR entities in templates.
 /// </summary>
-public static class LrParsingTableInterface
+public static class LrInterface
 {
     /// <summary>
     /// Retrieves the actions performed in the given LR table, when on a given state, encountering a given terminal.
@@ -52,4 +53,25 @@ public static class LrParsingTableInterface
     /// <param name="action">The action to check.</param>
     /// <returns>True, if <paramref name="action"/> is an accept.</returns>
     public static bool IsAccept(LrAction action) => action is LrAction.Accept;
+
+    /// <summary>
+    /// Checks, if a given LR item is an LR0 item.
+    /// </summary>
+    /// <param name="item">The item to check.</param>
+    /// <returns>True, if <paramref name="item"/> is LR0.</returns>
+    public static bool IsLr0Item(ILrItem item) => item is Lr0Item;
+
+    /// <summary>
+    /// Checks, if a given LR item is a CLR item.
+    /// </summary>
+    /// <param name="item">The item to check.</param>
+    /// <returns>True, if <paramref name="item"/> is CLR.</returns>
+    public static bool IsClrItem(ILrItem item) => item is ClrItem;
+
+    /// <summary>
+    /// Checks, if a given LR item is an LALR item.
+    /// </summary>
+    /// <param name="item">The item to check.</param>
+    /// <returns>True, if <paramref name="item"/> is LALR.</returns>
+    public static bool IsLalrItem(ILrItem item) => item is LalrItem;
 }

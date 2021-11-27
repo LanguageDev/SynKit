@@ -29,8 +29,3 @@ cfg.AddProduction(new(num, new Symbol[] { T_digit }));
 cfg.AddProduction(new(num, new Symbol[] { num, T_digit }));
 
 Console.WriteLine(cfg);
-Console.WriteLine("==================");
-var lalrTable = LrParsingTable.Lalr(cfg);
-Console.WriteLine(lalrTable.ToHtmlTable());
-Console.WriteLine("==================");
-Console.WriteLine(lalrTable.ToDotDfa());

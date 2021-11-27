@@ -1,8 +1,16 @@
 {{$.production.left}} → 
-{{-if $.production.right.count == 0-}}
+{{-if $.production.right.count == 0 && $.cursor == null-}}
 ε
 {{-else-}}
-    {{-for symbol in $.production.right~}}
+    {{-$i = 0-}}
+    {{-for symbol in $.production.right-}}
+        {{-if $i == $.cursor~}}
+ •
+        {{-end~}}
  {{symbol}}
+        {{-$i += 1-}}
     {{-end}}
+    {{-if $i == $.cursor~}}
+ •
+    {{-end-}}
 {{-end-}}

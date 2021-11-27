@@ -12,13 +12,13 @@ internal static class Program
         var table = BuildTestTable();
         var scriptObject1 = new ScriptObject();
         scriptObject1.Add("table", table);
-        scriptObject1.Import(typeof(LrParsingTableInterface));
+        scriptObject1.Import(typeof(LrInterface));
 
         var context = new TemplateContext();
         context.PushGlobal(scriptObject1);
         context.TemplateLoader = new DiskTemplateLoader("Templates");
 
-        var template = Template.Parse(File.ReadAllText("Templates/lr_parsing_table.template"));
+        var template = Template.Parse(File.ReadAllText("Templates/lr_automata.template"));
         var result = template.Render(context);
 
         Console.WriteLine(result);
@@ -46,6 +46,6 @@ internal static class Program
         cfg.AddProduction(new(atom, new Symbol[] { T_opaern, expr, T_cpaern }));
         cfg.AddProduction(new(atom, new Symbol[] { T_num }));
 
-        return LrParsingTable.Lr0(cfg);
+        return LrParsingTable.Lalr(cfg);
     }
 }

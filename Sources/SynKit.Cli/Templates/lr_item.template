@@ -1,0 +1,13 @@
+{{-$needs_sep = is_clr_item($.item) || is_lalr_item($.item)-}}
+{{-if $needs_sep-}}[{{end-}}
+{{include('production.template', production: $.item.production, cursor: $.item.cursor)}}
+{{-if is_clr_item($.item)-}}
+, {{$.item.lookahead-}}
+{{-else if is_lalr_item($.item)-}}
+, {{if $.item.lookaheads.count == 0-}}
+ε
+	{{-else-}}
+		{{-array.join($.item.lookaheads, ' / ')-}}
+	{{-end-}}
+{{-end-}}
+{{-if $needs_sep-}}]{{end-}}
