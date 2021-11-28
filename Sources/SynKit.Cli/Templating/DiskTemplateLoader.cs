@@ -7,7 +7,7 @@ namespace SynKit.Cli.Templating;
 /// <summary>
 /// A very simple ITemplateLoader loading directly from the disk, without any checks.
 /// </summary>
-public class DiskTemplateLoader : ITemplateLoader
+public sealed class DiskTemplateLoader : ITemplateLoader
 {
     private readonly string root;
 

@@ -8,7 +8,7 @@ namespace SynKit.Grammar.Lr;
 /// <typeparam name="TItem">The LR item type.</typeparam>
 /// <param name="State">The LR state.</param>
 /// <param name="ItemSet">The corresponding LR item set.</param>
-public record LrStateItemSet<TItem>(LrState State, LrItemSet<TItem> ItemSet) : ILrStateItemSet<TItem>
+public sealed record LrStateItemSet<TItem>(LrState State, LrItemSet<TItem> ItemSet) : ILrStateItemSet<TItem>
     where TItem : class, ILrItem
 {
     /// <inheritdoc/>
