@@ -9,9 +9,10 @@ internal static class Program
 {
     static void Main(string[] args)
     {
-        var table = BuildTestTable();
+        var table = BuildTestTable2();
         var scriptObject1 = new ScriptObject();
         scriptObject1.Add("table", table);
+        scriptObject1.Import(typeof(UtilsInterface));
         scriptObject1.Import(typeof(LrInterface));
 
         var context = new TemplateContext();
@@ -23,6 +24,20 @@ internal static class Program
 
         Console.WriteLine(result);
         File.WriteAllText("table.html", result);
+    }
+
+    static ILrParsingTable BuildTestTable2()
+    {
+        var stmt = new Symbol.Nonterminal("stmt");
+
+        var T_a = new Symbol.Terminal("a");
+
+        var cfg = new ContextFreeGrammar();
+        cfg.AddProduction(new(Symbol.Nonterminal.Start, new[] { stmt }));
+        cfg.AddProduction(new(stmt, new Symbol[] { }));
+        cfg.AddProduction(new(stmt, new Symbol[] { stmt, T_a }));
+
+        return LrParsingTable.Lr0(cfg);
     }
 
     static ILrParsingTable BuildTestTable()

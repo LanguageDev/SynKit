@@ -131,6 +131,64 @@ public static class LrParsingTable
     }
 
     /// <summary>
+    /// Builds a CLR (aka. LR(1)) parsing table.
+    /// </summary>
+    /// <param name="grammar">The grammar to build the table for.</param>
+    /// <returns>The CLR table for <paramref name="grammar"/>.</returns>
+    public static LrParsingTable<ClrItem> Clr(ContextFreeGrammar grammar)
+    {
+        var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
+
+        var stateAllocator = new LrStateAllocator<ClrItem>();
+        var actionTable = new LrActionTable();
+        var gotoTable = new LrGotoTable();
+
+        // Construct the I0 set
+        var i0 = ClrClosure(grammar, startProductions.Select(p => new ClrItem(p, 0, Symbol.Terminal.EndOfInput)));
+        var stk = new Stack<(LrItemSet<ClrItem> ItemSet, LrState State)>();
+        stateAllocator.Allocate(i0, out var state0);
+        stk.Push((i0, state0));
+
+        while (stk.TryPop(out var itemSetPair))
+        {
+            var itemSet = itemSetPair.ItemSet;
+            var state = itemSetPair.State;
+
+            // Terminal advance
+            foreach (var group in itemSet.ShiftItems)
+            {
+                var nextSet = ClrClosure(grammar, group.Select(i => i.Next));
+                if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
+                actionTable[state, group.Key].Add(new LrAction.Shift(nextState));
+            }
+
+            // Nonterminal advance
+            foreach (var group in itemSet.ProductionItems)
+            {
+                var nextSet = ClrClosure(grammar, group.Select(i => i.Next));
+                if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
+                gotoTable[state, group.Key] = nextState;
+            }
+
+            // Final items
+            foreach (var finalItem in itemSet.ReductionItems)
+            {
+                if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
+                {
+                    actionTable[state, Symbol.Terminal.EndOfInput].Add(LrAction.Accept.Instance);
+                }
+                else
+                {
+                    var reduction = new LrAction.Reduce(finalItem.Production);
+                    actionTable[state, finalItem.Lookahead].Add(reduction);
+                }
+            }
+        }
+
+        return new(grammar.Terminals, grammar.Nonterminals, stateAllocator, actionTable, gotoTable);
+    }
+
+    /// <summary>
     /// Builds a LALR parsing table.
     /// </summary>
     /// <param name="grammar">The grammar to build the table for.</param>
@@ -224,66 +282,11 @@ public static class LrParsingTable
         foreach (var state in stateAllocator.States)
         {
             var itemSet = stateAllocator[state];
+            var clrItemSet = ClrClosure(
+                grammar,
+                itemSet.SelectMany(i => i.Lookaheads.Select(l => new ClrItem(i.Production, i.Cursor, l))));
             // Final items
-            foreach (var finalItem in itemSet.ReductionItems)
-            {
-                if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
-                {
-                    actionTable[state, Symbol.Terminal.EndOfInput].Add(LrAction.Accept.Instance);
-                }
-                else
-                {
-                    var reduction = new LrAction.Reduce(finalItem.Production);
-                    foreach (var lookahead in finalItem.Lookaheads) actionTable[state, lookahead].Add(reduction);
-                }
-            }
-        }
-
-        return new(grammar.Terminals, grammar.Nonterminals, stateAllocator, actionTable, gotoTable);
-    }
-
-    /// <summary>
-    /// Builds a CLR (aka. LR(1)) parsing table.
-    /// </summary>
-    /// <param name="grammar">The grammar to build the table for.</param>
-    /// <returns>The CLR table for <paramref name="grammar"/>.</returns>
-    public static LrParsingTable<ClrItem> Clr(ContextFreeGrammar grammar)
-    {
-        var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
-
-        var stateAllocator = new LrStateAllocator<ClrItem>();
-        var actionTable = new LrActionTable();
-        var gotoTable = new LrGotoTable();
-
-        // Construct the I0 set
-        var i0 = ClrClosure(grammar, startProductions.Select(p => new ClrItem(p, 0, Symbol.Terminal.EndOfInput)));
-        var stk = new Stack<(LrItemSet<ClrItem> ItemSet, LrState State)>();
-        stateAllocator.Allocate(i0, out var state0);
-        stk.Push((i0, state0));
-
-        while (stk.TryPop(out var itemSetPair))
-        {
-            var itemSet = itemSetPair.ItemSet;
-            var state = itemSetPair.State;
-
-            // Terminal advance
-            foreach (var group in itemSet.ShiftItems)
-            {
-                var nextSet = ClrClosure(grammar, group.Select(i => i.Next));
-                if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
-                actionTable[state, group.Key].Add(new LrAction.Shift(nextState));
-            }
-
-            // Nonterminal advance
-            foreach (var group in itemSet.ProductionItems)
-            {
-                var nextSet = ClrClosure(grammar, group.Select(i => i.Next));
-                if (stateAllocator.Allocate(nextSet, out var nextState)) stk.Push((nextSet, nextState));
-                gotoTable[state, group.Key] = nextState;
-            }
-
-            // Final items
-            foreach (var finalItem in itemSet.ReductionItems)
+            foreach (var finalItem in clrItemSet.ReductionItems)
             {
                 if (finalItem.Production.Left.Equals(Symbol.Nonterminal.Start))
                 {

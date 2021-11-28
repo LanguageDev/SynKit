@@ -4,7 +4,7 @@
 {{-if is_clr_item($.item)-}}
 , {{$.item.lookahead-}}
 {{-else if is_lalr_item($.item)-}}
-, {{if $.item.lookaheads.count == 0-}}
+, {{if is_empty($.item.lookaheads)-}}
 ε
 	{{-else-}}
 		{{-array.join($.item.lookaheads, ' / ')-}}

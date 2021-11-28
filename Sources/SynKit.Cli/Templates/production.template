@@ -1,6 +1,6 @@
-{{$.production.left}} → 
-{{-if $.production.right.count == 0 && $.cursor == null-}}
-ε
+{{$.production.left}} →
+{{-if is_empty($.production.right) && $.cursor == null~}}
+ ε
 {{-else-}}
     {{-$i = 0-}}
     {{-for symbol in $.production.right-}}
