@@ -4,7 +4,7 @@ namespace SynKit.Grammar.Lr;
 /// Represents an LR state.
 /// </summary>
 /// <param name="Id">The state identifier.</param>
-public record struct LrState(int Id)
+public readonly record struct LrState(int Id)
 {
     /// <summary>
     /// The state to be considered as initial.

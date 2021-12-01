@@ -338,7 +338,7 @@ public static class LrParsingTable
             .Select(g => new LalrItem(g.Key.Production, g.Key.Cursor, g.Select(i => i.Lookahead).ToHashSet()))
             .ToHashSet());
 
-    private record struct LookaheadInfo(
+    private readonly record struct LookaheadInfo(
         Dictionary<(LrState State, Lr0Item Item), HashSet<Symbol.Terminal>> GeneratesFrom,
         Dictionary<(LrState State, Lr0Item Item), List<(LrState State, Lr0Item Item)>> PropagatesFrom);
 
