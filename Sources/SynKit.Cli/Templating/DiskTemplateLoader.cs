@@ -22,7 +22,7 @@ public sealed class DiskTemplateLoader : ITemplateLoader
 
     /// <inheritdoc/>
     public string GetPath(TemplateContext context, SourceSpan callerSpan, string templateName) =>
-        Path.Combine(Environment.CurrentDirectory, root, templateName);
+        Path.Combine(Environment.CurrentDirectory, this.root, templateName);
 
     /// <inheritdoc/>
     public string Load(TemplateContext context, SourceSpan callerSpan, string templatePath) =>

@@ -18,7 +18,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynKit.Cli", "SynKit.Cli\Sy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynKit.Language", "SynKit.Language\SynKit.Language.csproj", "{23B949FB-3A29-4D2F-9C6B-2E0D7D888B1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynKit.Text", "SynKit.Text\SynKit.Text.csproj", "{D6DA2E8B-7B77-4B60-8D80-B309446AFE17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynKit.Text", "SynKit.Text\SynKit.Text.csproj", "{D6DA2E8B-7B77-4B60-8D80-B309446AFE17}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynKit.Collections", "SynKit.Collections\SynKit.Collections.csproj", "{9CD4DA94-4F96-49E1-BEE4-5AE1849A4C6E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +52,10 @@ Global
 		{D6DA2E8B-7B77-4B60-8D80-B309446AFE17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D6DA2E8B-7B77-4B60-8D80-B309446AFE17}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D6DA2E8B-7B77-4B60-8D80-B309446AFE17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CD4DA94-4F96-49E1-BEE4-5AE1849A4C6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CD4DA94-4F96-49E1-BEE4-5AE1849A4C6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CD4DA94-4F96-49E1-BEE4-5AE1849A4C6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CD4DA94-4F96-49E1-BEE4-5AE1849A4C6E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

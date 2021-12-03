@@ -18,7 +18,7 @@ public record struct Cursor
     /// <param name="ch">The character to feed in.</param>
     public void Push(char ch)
     {
-        if (lastChar == '\r' && ch == '\n')
+        if (this.lastChar == '\r' && ch == '\n')
         {
             // Windows-style newline, we already stepped on \r
         }
@@ -32,6 +32,6 @@ public record struct Cursor
             // If it's a non-control character, move ahead
             this.Position = this.Position.Advance();
         }
-        lastChar = ch;
+        this.lastChar = ch;
     }
 }
