@@ -27,7 +27,7 @@ public record struct Cursor
             // OS-X 9 or Unix-style newline
             this.Position = this.Position.Newline();
         }
-        else if (!char.IsControl(ch))
+        else if (char.IsWhiteSpace(ch) || !char.IsControl(ch))
         {
             // If it's a non-control character, move ahead
             this.Position = this.Position.Advance();
