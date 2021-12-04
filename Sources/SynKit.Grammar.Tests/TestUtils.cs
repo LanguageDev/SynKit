@@ -1,4 +1,4 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Lr.Items;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,9 +8,9 @@ namespace SynKit.Grammar.Tests;
 
 internal class TestUtils
 {
-    public static ContextFreeGrammar ParseCfg(string text)
+    public static CfGrammar ParseCfg(string text)
     {
-        var result = new ContextFreeGrammar();
+        var result = new CfGrammar();
         var tokens = text
             .Split(' ', '\r', '\n')
             .Select(t => t.Trim())
@@ -54,7 +54,7 @@ internal class TestUtils
         return result;
     }
 
-    public static Production ParseProduction(ContextFreeGrammar cfg, string text)
+    public static Production ParseProduction(CfGrammar cfg, string text)
     {
         var parts = text.Split("->");
         var leftPart = parts[0].Trim();
@@ -68,7 +68,7 @@ internal class TestUtils
         return new(left, right);
     }
 
-    public static Lr0Item ParseLr0Item(ContextFreeGrammar cfg, string text)
+    public static Lr0Item ParseLr0Item(CfGrammar cfg, string text)
     {
         var fakeProd = ParseProduction(cfg, text);
         var cursor = fakeProd.Right
@@ -81,7 +81,7 @@ internal class TestUtils
         return new(new(fakeProd.Left, right), cursor);
     }
 
-    public static LalrItem ParseLalrItem(ContextFreeGrammar cfg, string text)
+    public static LalrItem ParseLalrItem(CfGrammar cfg, string text)
     {
         var parts = text.Split(", ");
         var lr0 = ParseLr0Item(cfg, parts[0]);
@@ -93,7 +93,7 @@ internal class TestUtils
         return new(lr0.Production, lr0.Cursor, lookaheads.ToHashSet());
     }
 
-    public static ClrItem ParseClrItem(ContextFreeGrammar cfg, string text)
+    public static ClrItem ParseClrItem(CfGrammar cfg, string text)
     {
         var lalr = ParseLalrItem(cfg, text);
         Debug.Assert(lalr.Lookaheads.Count == 1, "LR(1) items should have exactly one lookahead");

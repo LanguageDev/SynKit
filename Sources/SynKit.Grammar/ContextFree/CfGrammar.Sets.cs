@@ -1,6 +1,6 @@
-namespace SynKit.Grammar.Cfg;
+namespace SynKit.Grammar.ContextFree;
 
-partial class ContextFreeGrammar
+partial class CfGrammar
 {
     private HashSet<Symbol.Nonterminal>? nullables;
     private Dictionary<Symbol, HashSet<Symbol>>? firstSets;

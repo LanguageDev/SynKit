@@ -1,4 +1,4 @@
-namespace SynKit.Grammar.Cfg;
+namespace SynKit.Grammar.ContextFree;
 
 /// <summary>
 /// Represents a symbol that can appear in a context-free grammar.

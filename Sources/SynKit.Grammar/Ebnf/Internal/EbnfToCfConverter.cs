@@ -1,22 +1,22 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 
 namespace SynKit.Grammar.Ebnf.Internal;
 
-internal sealed class EbnfToCfgConverter
+internal sealed class EbnfToCfConverter
 {
     // NOTE: We should make this a config, really depends on the parsing method
     private const bool PreferLeftRecursion = true;
 
     private readonly EbnfGrammar ebnfGrammar;
-    private readonly ContextFreeGrammar cfg = new();
+    private readonly CfGrammar cfg = new();
     private int subruleCounter = 0;
 
-    public EbnfToCfgConverter(EbnfGrammar ebnfGrammar)
+    public EbnfToCfConverter(EbnfGrammar ebnfGrammar)
     {
         this.ebnfGrammar = ebnfGrammar;
     }
 
-    public ContextFreeGrammar ToCfg()
+    public CfGrammar ToCf()
     {
         if (this.ebnfGrammar.StartRule is null) throw new InvalidOperationException("The starting rule of the eBNF grammar is not set.");
         this.CheckRulePresence(this.ebnfGrammar.StartRule);

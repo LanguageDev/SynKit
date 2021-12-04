@@ -1,4 +1,4 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;

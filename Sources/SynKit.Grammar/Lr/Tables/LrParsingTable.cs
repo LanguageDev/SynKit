@@ -1,4 +1,4 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Internal;
 using SynKit.Grammar.Lr.Internal;
 using SynKit.Grammar.Lr.Items;
@@ -18,7 +18,7 @@ public static class LrParsingTable
     /// </summary>
     /// <param name="grammar">The grammar to build the table for.</param>
     /// <returns>The LR(0) table for <paramref name="grammar"/>.</returns>
-    public static LrParsingTable<Lr0Item> Lr0(ContextFreeGrammar grammar)
+    public static LrParsingTable<Lr0Item> Lr0(CfGrammar grammar)
     {
         var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
 
@@ -76,7 +76,7 @@ public static class LrParsingTable
     /// </summary>
     /// <param name="grammar">The grammar to build the table for.</param>
     /// <returns>The SLR table for <paramref name="grammar"/>.</returns>
-    public static LrParsingTable<Lr0Item> Slr(ContextFreeGrammar grammar)
+    public static LrParsingTable<Lr0Item> Slr(CfGrammar grammar)
     {
         var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
 
@@ -135,7 +135,7 @@ public static class LrParsingTable
     /// </summary>
     /// <param name="grammar">The grammar to build the table for.</param>
     /// <returns>The CLR table for <paramref name="grammar"/>.</returns>
-    public static LrParsingTable<ClrItem> Clr(ContextFreeGrammar grammar)
+    public static LrParsingTable<ClrItem> Clr(CfGrammar grammar)
     {
         var startProductions = grammar.GetProductions(Symbol.Nonterminal.Start);
 
@@ -193,7 +193,7 @@ public static class LrParsingTable
     /// </summary>
     /// <param name="grammar">The grammar to build the table for.</param>
     /// <returns>The LALR table for <paramref name="grammar"/>.</returns>
-    public static LrParsingTable<LalrItem> Lalr(ContextFreeGrammar grammar)
+    public static LrParsingTable<LalrItem> Lalr(CfGrammar grammar)
     {
         static LrItemSet<Lr0Item> ToKernelSet(LrItemSet<Lr0Item> itemSet) => new(itemSet.KernelItems);
 
@@ -303,20 +303,20 @@ public static class LrParsingTable
         return new(grammar.Terminals, grammar.Nonterminals, stateAllocator, actionTable, gotoTable);
     }
 
-    private static IEnumerable<Production> ItemProductions<TItem>(ContextFreeGrammar grammar, TItem item)
+    private static IEnumerable<Production> ItemProductions<TItem>(CfGrammar grammar, TItem item)
         where TItem : ILrItem => item.AfterCursor is Symbol.Nonterminal nonterm
         ? grammar.GetProductions(nonterm)
         : Enumerable.Empty<Production>();
 
     private static LrItemSet<Lr0Item> Lr0Closure(
-        ContextFreeGrammar grammar,
+        CfGrammar grammar,
         IEnumerable<Lr0Item> set) => new(GraphSearch.Dfs(
             set,
             // Simply get all the productions that have the current nonterminal on the left
             item => ItemProductions(grammar, item).Select(i => new Lr0Item(i, 0))));
 
     private static LrItemSet<ClrItem> ClrClosure(
-        ContextFreeGrammar grammar,
+        CfGrammar grammar,
         IEnumerable<ClrItem> set) => new(GraphSearch.Dfs(
             set,
             item => ItemProductions(grammar, item).SelectMany(prod =>
@@ -330,7 +330,7 @@ public static class LrParsingTable
             })));
 
     private static LrItemSet<LalrItem> LalrClosure(
-        ContextFreeGrammar grammar,
+        CfGrammar grammar,
         Lr0Item item) => new(ClrClosure(
             grammar,
             new[] { new ClrItem(item.Production, item.Cursor, Symbol.Terminal.NotInGrammar) })
@@ -342,7 +342,7 @@ public static class LrParsingTable
         Dictionary<(LrState State, Lr0Item Item), HashSet<Symbol.Terminal>> GeneratesFrom,
         Dictionary<(LrState State, Lr0Item Item), List<(LrState State, Lr0Item Item)>> PropagatesFrom);
 
-    private static LookaheadInfo GenerateLalrLookaheadInfo(ContextFreeGrammar grammar, LrParsingTable<Lr0Item> lr0Table)
+    private static LookaheadInfo GenerateLalrLookaheadInfo(CfGrammar grammar, LrParsingTable<Lr0Item> lr0Table)
     {
         var generatesFrom = new Dictionary<(LrState State, Lr0Item Item), HashSet<Symbol.Terminal>>();
         var propagatesFrom = new Dictionary<(LrState State, Lr0Item Item), List<(LrState State, Lr0Item Item)>>();

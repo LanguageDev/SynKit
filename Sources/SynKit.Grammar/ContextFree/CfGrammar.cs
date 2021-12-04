@@ -1,12 +1,12 @@
 using System.Collections.Immutable;
 using System.Text;
 
-namespace SynKit.Grammar.Cfg;
+namespace SynKit.Grammar.ContextFree;
 
 /// <summary>
 /// Represents a context-free grammar with a set of production rules.
 /// </summary>
-public sealed partial class ContextFreeGrammar
+public sealed partial class CfGrammar
 {
     /// <summary>
     /// All terminals in this grammar.

@@ -1,4 +1,4 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using System.Text;
 
 namespace SynKit.Grammar.Lr.Items;

@@ -1,4 +1,4 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Lr.Items;
 
 namespace SynKit.Grammar.Lr.Tables;

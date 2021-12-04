@@ -1,4 +1,4 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Lr;
 using SynKit.Grammar.Lr.Items;
 using SynKit.Grammar.Lr.Tables;
@@ -44,19 +44,19 @@ F -> e
 
     /* Factory */
 
-    protected static Production Production(ContextFreeGrammar cfg, string text) =>
+    protected static Production Production(CfGrammar cfg, string text) =>
         TestUtils.ParseProduction(cfg, text);
 
     protected static LrAction Shift(LrState state) =>
         new LrAction.Shift(state);
 
-    protected static LrAction Reduce(ContextFreeGrammar cfg, string text) =>
+    protected static LrAction Reduce(CfGrammar cfg, string text) =>
         new LrAction.Reduce(TestUtils.ParseProduction(cfg, text));
 
     /* Assertions */
 
     protected static void AssertState(
-        ContextFreeGrammar grammar,
+        CfGrammar grammar,
         LrParsingTable<TItem> table,
         out LrState state,
         params string[] itemTexts)
@@ -89,7 +89,7 @@ F -> e
         Assert.True(actualActions.SetEquals(actions));
     }
 
-    protected static ILrItem ParseItem(ContextFreeGrammar cfg, string text) =>
+    protected static ILrItem ParseItem(CfGrammar cfg, string text) =>
           typeof(TItem) == typeof(Lr0Item) ? TestUtils.ParseLr0Item(cfg, text)
         : typeof(TItem) == typeof(LalrItem) ? TestUtils.ParseLalrItem(cfg, text)
         : typeof(TItem) == typeof(ClrItem) ? TestUtils.ParseClrItem(cfg, text)

@@ -1,4 +1,4 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Ebnf.Internal;
 
 namespace SynKit.Grammar.Ebnf;
@@ -19,8 +19,8 @@ public sealed class EbnfGrammar
     public string? StartRule { get; set; }
 
     /// <summary>
-    /// Converts this eBNF grammar to a <see cref="ContextFreeGrammar"/>.
+    /// Converts this eBNF grammar to a <see cref="CfGrammar"/>.
     /// </summary>
-    /// <returns>The <see cref="ContextFreeGrammar"/> recognizing the same language as this.</returns>
-    public ContextFreeGrammar ToContextFreeGrammar() => new EbnfToCfgConverter(this).ToCfg();
+    /// <returns>The <see cref="CfGrammar"/> recognizing the same language as this.</returns>
+    public CfGrammar ToCfGrammar() => new EbnfToCfConverter(this).ToCf();
 }

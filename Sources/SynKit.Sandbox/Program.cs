@@ -1,4 +1,4 @@
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Lr;
 using SynKit.Grammar.Lr.Tables;
 
@@ -17,7 +17,7 @@ var T_plus = new Symbol.Terminal("+");
 var T_digit = new Symbol.Terminal("digit");
 var T_arr = new Symbol.Terminal("arr");
 
-var cfg = new ContextFreeGrammar();
+var cfg = new CfGrammar();
 cfg.AddProduction(new(Symbol.Nonterminal.Start, new[] { stmt }));
 cfg.AddProduction(new(stmt, new Symbol[] { T_if, expr, T_then, stmt, T_else, stmt }));
 cfg.AddProduction(new(stmt, new Symbol[] { T_if, expr, T_then, stmt }));

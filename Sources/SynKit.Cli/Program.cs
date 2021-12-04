@@ -2,7 +2,7 @@
 using Scriban;
 using Scriban.Runtime;
 using SynKit.Cli.Templating;
-using SynKit.Grammar.Cfg;
+using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Lr.Tables;
 
 internal static class Program
@@ -32,7 +32,7 @@ internal static class Program
 
         var T_a = new Symbol.Terminal("a");
 
-        var cfg = new ContextFreeGrammar();
+        var cfg = new CfGrammar();
         cfg.AddProduction(new(Symbol.Nonterminal.Start, new[] { stmt }));
         cfg.AddProduction(new(stmt, new Symbol[] { }));
         cfg.AddProduction(new(stmt, new Symbol[] { stmt, T_a }));
@@ -52,7 +52,7 @@ internal static class Program
         var T_star = new Symbol.Terminal("*");
         var T_num = new Symbol.Terminal("num");
 
-        var cfg = new ContextFreeGrammar();
+        var cfg = new CfGrammar();
         cfg.AddProduction(new(Symbol.Nonterminal.Start, new[] { expr }));
         cfg.AddProduction(new(expr, new Symbol[] { expr, T_plus, factor }));
         cfg.AddProduction(new(expr, new Symbol[] { factor }));
