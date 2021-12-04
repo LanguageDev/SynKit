@@ -15,6 +15,11 @@ public sealed class Scanner
     /// </summary>
     public Position Position => this.cursor.Position;
 
+    /// <summary>
+    /// True, if the input has been read to the end.
+    /// </summary>
+    public bool IsEnd => !this.TryPeek(out _);
+
     private readonly TextReader reader;
     private readonly char[] readBuffer = new char[readBufferSize];
     private readonly RingBuffer<char> peekBuffer = new();
@@ -66,6 +71,24 @@ public sealed class Scanner
     /// <returns>True, if there was a character to peek. False, if the end of input has been reached before being
     /// able to peek the character.</returns>
     public bool TryPeek(out char ch) => this.TryPeek(0, out ch);
+
+    /// <summary>
+    /// Checks, if a given text matches the input ahead.
+    /// </summary>
+    /// <param name="text">The text to match.</param>
+    /// <param name="offset">The offset ahead to start the match.</param>
+    /// <returns>True, if <paramref name="text"/> appears <paramref name="offset"/> ahead the input.</returns>
+    public bool Matches(string text, int offset = 0)
+    {
+        if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset));
+        if (text.Length == 0) return true;
+        if (!this.TryPeek(offset + text.Length - 1, out _)) return false;
+        for (var i = 0; i < text.Length; ++i)
+        {
+            if (this.peekBuffer[offset + i] != text[i]) return false;
+        }
+        return true;
+    }
 
     /// <summary>
     /// Consumes a given amount of characters from the input.

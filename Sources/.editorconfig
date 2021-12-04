@@ -8,7 +8,7 @@ charset = utf-8
 
 [*.{cs,vb}]
 # this. qualification
-dotnet_diagnostic.IDE0003.severity = warning
+dotnet_diagnostic.IDE0009.severity = warning
 dotnet_style_qualification_for_event = true
 dotnet_style_qualification_for_property = true
 dotnet_style_qualification_for_method = true
