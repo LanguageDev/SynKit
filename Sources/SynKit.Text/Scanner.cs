@@ -1,5 +1,4 @@
 using SynKit.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace SynKit.Text;
