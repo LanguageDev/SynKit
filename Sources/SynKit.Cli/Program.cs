@@ -9,7 +9,13 @@ internal static class Program
 {
     static void Main(string[] args)
     {
-        var table = BuildTestTable2();
+        var grammar = CfGrammar.Parse(@"
+E -> E + T | T
+T -> T * F | F
+F -> n | (E)
+");
+        var table = LrParsingTable.Lr0(grammar);
+
         var scriptObject1 = new ScriptObject();
         scriptObject1.Add("table", table);
         scriptObject1.Import(typeof(UtilsInterface));
@@ -19,7 +25,7 @@ internal static class Program
         context.PushGlobal(scriptObject1);
         context.TemplateLoader = new DiskTemplateLoader("Templates");
 
-        var template = Template.Parse(File.ReadAllText("Templates/lr_automata.template"));
+        var template = Template.Parse(File.ReadAllText("Templates/lr_parsing_table.template"));
         var result = template.Render(context);
 
         Console.WriteLine(result);

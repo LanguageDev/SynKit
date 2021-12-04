@@ -1,3 +1,4 @@
+using SynKit.Grammar.ContextFree.Internal;
 using System.Collections.Immutable;
 using System.Text;
 
@@ -8,6 +9,20 @@ namespace SynKit.Grammar.ContextFree;
 /// </summary>
 public sealed partial class CfGrammar
 {
+    /// <summary>
+    /// Parses a context-free grammar from text.
+    /// </summary>
+    /// <param name="reader">The reader to read the text from.</param>
+    /// <returns>The parsed <see cref="CfGrammar"/>.</returns>
+    public static CfGrammar Parse(TextReader reader) => new CfParser(new CfLexer(reader)).Parse();
+
+    /// <summary>
+    /// Parses a context-free grammar from text.
+    /// </summary>
+    /// <param name="text">The text to parse from.</param>
+    /// <returns>The parsed <see cref="CfGrammar"/>.</returns>
+    public static CfGrammar Parse(string text) => Parse(new StringReader(text));
+
     /// <summary>
     /// All terminals in this grammar.
     /// </summary>
