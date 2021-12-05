@@ -82,7 +82,7 @@ internal sealed class EbnfToCfConverter
                     : new EbnfAst.Seq(rep.Element, new EbnfAst.Reference(sub));
                 this.ConvertRule(sub, new EbnfAst.Alt(recAst, EbnfAst.Epsilon.Instance));
             }
-            return new[] { new Symbol.Nonterminal(subNt) };
+            return new[] { subNt };
         }
         throw new ArgumentOutOfRangeException(nameof(node));
     }

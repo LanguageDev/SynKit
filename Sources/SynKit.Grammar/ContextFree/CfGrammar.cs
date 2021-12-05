@@ -177,46 +177,41 @@ public sealed partial class CfGrammar
     /// <returns>A potentially infinite sequence of <see cref="Symbol.Terminal"/>s, that are accepted.</returns>
     public IEnumerable<IReadOnlyList<Symbol.Terminal>> GenerateSentences()
     {
-        IEnumerable<IReadOnlyList<Symbol.Terminal>> GenerateSentencesFrom(IEnumerable<IReadOnlyList<Symbol>> symbolSequences)
-        {
-            // For each sequence we try each substitution
-            // If anything results in a sequence of terminals, we yield it, otherwise we add it to the next iteration
-            var currentIteration = symbolSequences.ToHashSet();
-            while (currentIteration.Count > 0)
-            {
-                var nextIteration = new HashSet<IReadOnlyList<Symbol>>(ListEqualityComparer<Symbol>.Default);
-                foreach (var symbolSequence in currentIteration)
-                {
-                    // If this is a complete terminal sequence, yield it
-                    if (symbolSequence.All(s => s is Symbol.Terminal))
-                    {
-                        yield return symbolSequence.OfType<Symbol.Terminal>().ToList();
-                    }
-                    else
-                    {
-                        // Otherwise we need to add all possible substitutions to it
-                        for (var i = 0; i < symbolSequence.Count; ++i)
-                        {
-                            // Skip terminals, they are already substituted
-                            if (symbolSequence[i] is not Symbol.Nonterminal nt) continue;
+        // Find the initial productions
+        var initials = this.GetProductions(Symbol.Nonterminal.Start);
+        // Add them to the touched set
+        var touched = initials.Select(p => p.Right).ToHashSet(ListEqualityComparer<Symbol>.Default);
+        // Also add them to the process queue
+        var queue = new PriorityQueue<IReadOnlyList<Symbol>, int>();
+        foreach (var t in touched) queue.Enqueue(t, t.Count(s => s is Symbol.Nonterminal));
 
-                            // We need to look at all production rules for this terminal and substitute it
-                            var productionRules = this.GetProductions(nt);
-                            foreach (var (_, ruleRight) in productionRules)
-                            {
-                                var symbolSequenceCopy = symbolSequence.ToList();
-                                symbolSequenceCopy.RemoveAt(i);
-                                symbolSequenceCopy.InsertRange(i, ruleRight);
-                                nextIteration.Add(symbolSequenceCopy);
-                            }
-                        }
-                    }
+        // While there's something to dequeue, process it
+        while (queue.TryDequeue(out var symbols, out var prio))
+        {
+            // If all of the symbols are terminals, no further processing is needed
+            if (symbols.All(s => s is Symbol.Terminal))
+            {
+                yield return symbols.OfType<Symbol.Terminal>().ToList();
+                continue;
+            }
+            // Otherwise we need to try all different substitutions
+            for (var i = 0; i < symbols.Count; ++i)
+            {
+                // Skip terminals, they are already substituted
+                if (symbols[i] is not Symbol.Nonterminal nt) continue;
+
+                // We need to look at all production rules for this terminal and substitute it
+                var productions = this.GetProductions(nt);
+                foreach (var (_, right) in productions)
+                {
+                    // Copy, substitute
+                    var copy = symbols.ToList();
+                    copy.RemoveAt(i);
+                    copy.InsertRange(i, right);
+                    // If new, enqueue for processing
+                    if (touched.Add(copy)) queue.Enqueue(copy, prio + right.Count(s => s is Symbol.Nonterminal));
                 }
-                currentIteration = nextIteration;
             }
         }
-
-        var initials = this.GetProductions(Symbol.Nonterminal.Start);
-        return GenerateSentencesFrom(initials.Select(p => p.Right));
     }
 }
