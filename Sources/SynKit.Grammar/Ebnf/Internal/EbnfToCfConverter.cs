@@ -9,6 +9,7 @@ internal sealed class EbnfToCfConverter
     private readonly EbnfGrammar ebnfGrammar;
     private readonly CfGrammar cfg = new();
     private readonly HashSet<string> validRules = new();
+    private readonly Dictionary<EbnfAst, Symbol.Nonterminal> cachedRepetitions = new();
     private int subruleCounter = 0;
 
     public EbnfToCfConverter(EbnfToCfSettings settings, EbnfGrammar ebnfGrammar)
@@ -63,20 +64,25 @@ internal sealed class EbnfToCfConverter
         }
         if (node is EbnfAst.Rep rep)
         {
-            Debug.Assert(rep.Min == 0);
-            Debug.Assert(rep.Max is null);
-            // Make a sub-rule in the form
-            // Sub -> Sub Element | Epsilon
-            // or
-            // Sub -> Element Sub | Epsilon
-            // Depending on which recursion we prefer
-            var sub = this.MakeSubruleName(name);
-            this.validRules.Add(sub);
-            var recAst = this.settings.PreferLeftRecursion
-                ? new EbnfAst.Seq(new EbnfAst.Reference(sub), rep.Element)
-                : new EbnfAst.Seq(rep.Element, new EbnfAst.Reference(sub));
-            this.ConvertRule(sub, new EbnfAst.Alt(recAst, EbnfAst.Epsilon.Instance));
-            return new[] { new Symbol.Nonterminal(sub) };
+            if (!this.cachedRepetitions.TryGetValue(rep.Element, out var subNt))
+            {
+                Debug.Assert(rep.Min == 0);
+                Debug.Assert(rep.Max is null);
+                // Make a sub-rule in the form
+                // Sub -> Sub Element | Epsilon
+                // or
+                // Sub -> Element Sub | Epsilon
+                // Depending on which recursion we prefer
+                var sub = this.MakeSubruleName(name);
+                subNt = new Symbol.Nonterminal(sub);
+                this.cachedRepetitions.Add(rep.Element, subNt);
+                this.validRules.Add(sub);
+                var recAst = this.settings.PreferLeftRecursion
+                    ? new EbnfAst.Seq(new EbnfAst.Reference(sub), rep.Element)
+                    : new EbnfAst.Seq(rep.Element, new EbnfAst.Reference(sub));
+                this.ConvertRule(sub, new EbnfAst.Alt(recAst, EbnfAst.Epsilon.Instance));
+            }
+            return new[] { new Symbol.Nonterminal(subNt) };
         }
         throw new ArgumentOutOfRangeException(nameof(node));
     }
