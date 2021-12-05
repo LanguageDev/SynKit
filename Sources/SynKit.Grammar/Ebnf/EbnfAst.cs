@@ -181,6 +181,9 @@ public abstract record EbnfAst
         public override EbnfAst Normalize()
         {
             var elementNorm = this.Element.Normalize();
+            // If already normalized, don't bother further
+            if (this.Min == 0 && this.Max is null) return new Rep(elementNorm, 0, null);
+
             // Construct the minimum required
             EbnfAst result = Epsilon.Instance;
             if (this.Min > 0)

@@ -9,6 +9,23 @@ namespace SynKit.Grammar.Ebnf;
 public sealed class EbnfGrammar
 {
     /// <summary>
+    /// Parses an eBNF grammar from text.
+    /// </summary>
+    /// <param name="flavor">The eBNF flavor to use.</param>
+    /// <param name="reader">The reader to read the text from.</param>
+    /// <returns>The parsed <see cref="EbnfGrammar"/>.</returns>
+    public static EbnfGrammar Parse(EbnfFlavor flavor, TextReader reader) =>
+        new EbnfParser(flavor, new EbnfLexer(reader)).Parse();
+
+    /// <summary>
+    /// Parses an eBNF grammar from text.
+    /// </summary>
+    /// <param name="flavor">The eBNF flavor to use.</param>
+    /// <param name="text">The text to parse from.</param>
+    /// <returns>The parsed <see cref="EbnfGrammar"/>.</returns>
+    public static EbnfGrammar Parse(EbnfFlavor flavor, string text) => Parse(flavor, new StringReader(text));
+
+    /// <summary>
     /// The rules in this grammar.
     /// </summary>
     public IDictionary<string, EbnfAst> Rules { get; } = new Dictionary<string, EbnfAst>();

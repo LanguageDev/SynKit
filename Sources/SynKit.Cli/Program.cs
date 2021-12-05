@@ -3,18 +3,83 @@ using Scriban;
 using Scriban.Runtime;
 using SynKit.Cli.Templating;
 using SynKit.Grammar.ContextFree;
+using SynKit.Grammar.Ebnf;
 using SynKit.Grammar.Lr.Tables;
 
 internal static class Program
 {
     static void Main(string[] args)
     {
-        var grammar = CfGrammar.Parse(@"
-E -> E + T | T
-T -> T * F | F
-F -> n | (E)
+        var ebnfGrammar = EbnfGrammar.Parse(EbnfFlavor.Standard, @"
+	chunk ::= block
+
+	block ::= {stat} [retstat]
+
+	stat ::=  ‘;’ | 
+		 varlist ‘=’ explist | 
+		 functioncall | 
+		 label | 
+		 break | 
+		 goto Name | 
+		 do block end | 
+		 while exp do block end | 
+		 repeat block until exp | 
+		 if exp then block {elseif exp then block} [else block] end | 
+		 for Name ‘=’ exp ‘,’ exp [‘,’ exp] do block end | 
+		 for namelist in explist do block end | 
+		 function funcname funcbody | 
+		 local function Name funcbody | 
+		 local namelist [‘=’ explist] 
+
+	retstat ::= return [explist] [‘;’]
+
+	label ::= ‘::’ Name ‘::’
+
+	funcname ::= Name {‘.’ Name} [‘:’ Name]
+
+	varlist ::= var {‘,’ var}
+
+	var ::=  Name | prefixexp ‘[’ exp ‘]’ | prefixexp ‘.’ Name 
+
+	namelist ::= Name {‘,’ Name}
+
+	explist ::= exp {‘,’ exp}
+
+	exp ::=  nil | false | true | Numeral | LiteralString | ‘...’ | functiondef | 
+		 prefixexp | tableconstructor | exp binop exp | unop exp 
+
+	prefixexp ::= var | functioncall | ‘(’ exp ‘)’
+
+	functioncall ::=  prefixexp args | prefixexp ‘:’ Name args 
+
+	args ::=  ‘(’ [explist] ‘)’ | tableconstructor | LiteralString 
+
+	functiondef ::= function funcbody
+
+	funcbody ::= ‘(’ [parlist] ‘)’ block end
+
+	parlist ::= namelist [‘,’ ‘...’] | ‘...’
+
+	tableconstructor ::= ‘{’ [fieldlist] ‘}’
+
+	fieldlist ::= field {fieldsep field} [fieldsep]
+
+	field ::= ‘[’ exp ‘]’ ‘=’ exp | Name ‘=’ exp | exp
+
+	fieldsep ::= ‘,’ | ‘;’
+
+	binop ::=  ‘+’ | ‘-’ | ‘*’ | ‘/’ | ‘//’ | ‘^’ | ‘%’ | 
+		 ‘&’ | ‘~’ | ‘|’ | ‘>>’ | ‘<<’ | ‘..’ | 
+		 ‘<’ | ‘<=’ | ‘>’ | ‘>=’ | ‘==’ | ‘~=’ | 
+		 and | or
+
+	unop ::= ‘-’ | not | ‘#’ | ‘~’
 ");
-        var table = LrParsingTable.Lr0(grammar);
+        var cfGrammar = ebnfGrammar.ToCfGrammar();
+        Console.WriteLine(cfGrammar);
+        return;
+
+        var table = LrParsingTable.Lr0(cfGrammar);
 
         var scriptObject1 = new ScriptObject();
         scriptObject1.Add("table", table);
