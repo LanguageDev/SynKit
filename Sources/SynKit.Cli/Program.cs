@@ -76,8 +76,11 @@ internal static class Program
 	unop ::= ‘-’ | not | ‘#’ | ‘~’
 ");
         var cfGrammar = ebnfGrammar.ToCfGrammar();
-        Console.WriteLine(cfGrammar);
-        return;
+
+        foreach (var sentence in cfGrammar.GenerateSentences())
+        {
+            Console.WriteLine(string.Join(" ", sentence));
+        }
 
         var table = LrParsingTable.Lr0(cfGrammar);
 

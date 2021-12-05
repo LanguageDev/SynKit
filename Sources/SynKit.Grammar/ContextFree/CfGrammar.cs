@@ -1,4 +1,5 @@
 using SynKit.Grammar.ContextFree.Internal;
+using SynKit.Grammar.Internal;
 using System.Collections.Immutable;
 using System.Text;
 
@@ -168,5 +169,54 @@ public sealed partial class CfGrammar
     {
         this.followSets ??= this.CalculateFollowSets();
         return this.followSets[nonterminal];
+    }
+
+    /// <summary>
+    /// Generates sequences of terminals that are accepted by this grammar.
+    /// </summary>
+    /// <returns>A potentially infinite sequence of <see cref="Symbol.Terminal"/>s, that are accepted.</returns>
+    public IEnumerable<IReadOnlyList<Symbol.Terminal>> GenerateSentences()
+    {
+        IEnumerable<IReadOnlyList<Symbol.Terminal>> GenerateSentencesFrom(IEnumerable<IReadOnlyList<Symbol>> symbolSequences)
+        {
+            // For each sequence we try each substitution
+            // If anything results in a sequence of terminals, we yield it, otherwise we add it to the next iteration
+            var currentIteration = symbolSequences.ToHashSet();
+            while (currentIteration.Count > 0)
+            {
+                var nextIteration = new HashSet<IReadOnlyList<Symbol>>(ListEqualityComparer<Symbol>.Default);
+                foreach (var symbolSequence in currentIteration)
+                {
+                    // If this is a complete terminal sequence, yield it
+                    if (symbolSequence.All(s => s is Symbol.Terminal))
+                    {
+                        yield return symbolSequence.OfType<Symbol.Terminal>().ToList();
+                    }
+                    else
+                    {
+                        // Otherwise we need to add all possible substitutions to it
+                        for (var i = 0; i < symbolSequence.Count; ++i)
+                        {
+                            // Skip terminals, they are already substituted
+                            if (symbolSequence[i] is not Symbol.Nonterminal nt) continue;
+
+                            // We need to look at all production rules for this terminal and substitute it
+                            var productionRules = this.GetProductions(nt);
+                            foreach (var (_, ruleRight) in productionRules)
+                            {
+                                var symbolSequenceCopy = symbolSequence.ToList();
+                                symbolSequenceCopy.RemoveAt(i);
+                                symbolSequenceCopy.InsertRange(i, ruleRight);
+                                nextIteration.Add(symbolSequenceCopy);
+                            }
+                        }
+                    }
+                }
+                currentIteration = nextIteration;
+            }
+        }
+
+        var initials = this.GetProductions(Symbol.Nonterminal.Start);
+        return GenerateSentencesFrom(initials.Select(p => p.Right));
     }
 }
