@@ -5,16 +5,15 @@ namespace SynKit.Grammar.Ebnf.Internal;
 
 internal sealed class EbnfToCfConverter
 {
-    // NOTE: We should make this a config, really depends on the parsing method
-    private const bool PreferLeftRecursion = true;
-
+    private readonly EbnfToCfSettings settings;
     private readonly EbnfGrammar ebnfGrammar;
     private readonly CfGrammar cfg = new();
     private readonly HashSet<string> validRules = new();
     private int subruleCounter = 0;
 
-    public EbnfToCfConverter(EbnfGrammar ebnfGrammar)
+    public EbnfToCfConverter(EbnfToCfSettings settings, EbnfGrammar ebnfGrammar)
     {
+        this.settings = settings;
         this.ebnfGrammar = ebnfGrammar;
     }
 
@@ -56,11 +55,11 @@ internal sealed class EbnfToCfConverter
     private IEnumerable<Symbol> ConvertAtomLevel(string name, EbnfAst node)
     {
         if (node is EbnfAst.Epsilon) return Enumerable.Empty<Symbol>();
-        if (node is EbnfAst.Term term) return new[] { new Symbol.Terminal(term.Value) };
-        if (node is EbnfAst.Rule rule)
+        if (node is EbnfAst.Reference rule)
         {
-            this.CheckRulePresence(rule.Name);
-            return new[] { new Symbol.Nonterminal(rule.Name) };
+            return this.validRules.Contains(rule.Name)
+                ? new[] { new Symbol.Nonterminal(rule.Name) }
+                : new[] { new Symbol.Terminal(rule.Name) };
         }
         if (node is EbnfAst.Rep rep)
         {
@@ -73,9 +72,9 @@ internal sealed class EbnfToCfConverter
             // Depending on which recursion we prefer
             var sub = this.MakeSubruleName(name);
             this.validRules.Add(sub);
-            var recAst = PreferLeftRecursion
-                ? new EbnfAst.Seq(new EbnfAst.Rule(sub), rep.Element)
-                : new EbnfAst.Seq(rep.Element, new EbnfAst.Rule(sub));
+            var recAst = this.settings.PreferLeftRecursion
+                ? new EbnfAst.Seq(new EbnfAst.Reference(sub), rep.Element)
+                : new EbnfAst.Seq(rep.Element, new EbnfAst.Reference(sub));
             this.ConvertRule(sub, new EbnfAst.Alt(recAst, EbnfAst.Epsilon.Instance));
             return new[] { new Symbol.Nonterminal(sub) };
         }

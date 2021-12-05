@@ -55,6 +55,15 @@ public abstract record EbnfAst
     public static Rep Between(EbnfAst element, int min, int max) => new(element, min, max);
 
     /// <summary>
+    /// Creates a repetition node that represents repetition an exact amount of times.
+    /// </summary>
+    /// <param name="element">The element to repeat.</param>
+    /// <param name="n">The number of repetitions.</param>
+    /// <returns>A repetition node that represents matching <paramref name="element"/> exactly <paramref name="n"/>
+    /// times.</returns>
+    public static Rep Exactly(EbnfAst element, int n) => new(element, n, n);
+
+    /// <summary>
     /// Normalizes this node so it contains alternatives on top, sequences below that, and only has 0-or-more
     /// unbounded repetitions.
     /// </summary>
@@ -80,20 +89,10 @@ public abstract record EbnfAst
     }
 
     /// <summary>
-    /// Represents an eBNF rule reference.
+    /// Represents an eBNF reference by a name to a rule or terminal.
     /// </summary>
-    /// <param name="Name">The rule name.</param>
-    public sealed record Rule(string Name) : EbnfAst
-    {
-        /// <inheritdoc/>
-        public override EbnfAst Normalize() => this;
-    }
-
-    /// <summary>
-    /// Represents a terminal value.
-    /// </summary>
-    /// <param name="Value">The object identifying the terminal.</param>
-    public sealed record Term(object Value) : EbnfAst
+    /// <param name="Name">The reference name.</param>
+    public sealed record Reference(string Name) : EbnfAst
     {
         /// <inheritdoc/>
         public override EbnfAst Normalize() => this;

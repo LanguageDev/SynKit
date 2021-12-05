@@ -22,5 +22,12 @@ public sealed class EbnfGrammar
     /// Converts this eBNF grammar to a <see cref="CfGrammar"/>.
     /// </summary>
     /// <returns>The <see cref="CfGrammar"/> recognizing the same language as this.</returns>
-    public CfGrammar ToCfGrammar() => new EbnfToCfConverter(this).ToCf();
+    public CfGrammar ToCfGrammar() => this.ToCfGrammar(EbnfToCfSettings.Default);
+
+    /// <summary>
+    /// Converts this eBNF grammar to a <see cref="CfGrammar"/>.
+    /// </summary>
+    /// <param name="settings">The settings to use for the conversion.</param>
+    /// <returns>The <see cref="CfGrammar"/> recognizing the same language as this.</returns>
+    public CfGrammar ToCfGrammar(EbnfToCfSettings settings) => new EbnfToCfConverter(settings, this).ToCf();
 }
