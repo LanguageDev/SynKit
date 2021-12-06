@@ -8,7 +8,7 @@ digraph PDA {
         {{-$item_set = si_set.item_set}}
     {{$state.id}}[xlabel=<I<SUB>{{$state.id}}</SUB>>, label="
         {{-for item in $item_set-}}
-{{-include('lr_item.template', item: item)-}}\l
+{{-include('Visualization/lr_item.template', item: item)-}}\l
         {{-end-}}
 "]
     {{-end}}

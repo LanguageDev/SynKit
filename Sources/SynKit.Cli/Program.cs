@@ -77,11 +77,6 @@ internal static class Program
 ");
         var cfGrammar = ebnfGrammar.ToCfGrammar();
 
-        foreach (var sentence in cfGrammar.GenerateSentences())
-        {
-            Console.WriteLine(string.Join(" ", sentence));
-        }
-
         var table = LrParsingTable.Lr0(cfGrammar);
 
         var scriptObject1 = new ScriptObject();
@@ -93,7 +88,7 @@ internal static class Program
         context.PushGlobal(scriptObject1);
         context.TemplateLoader = new DiskTemplateLoader("Templates");
 
-        var template = Template.Parse(File.ReadAllText("Templates/lr_parsing_table.template"));
+        var template = Template.Parse(File.ReadAllText("Templates/CSharp/lr_parser.template"));
         var result = template.Render(context);
 
         Console.WriteLine(result);

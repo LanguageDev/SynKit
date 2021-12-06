@@ -101,7 +101,7 @@
                     <li>S: {{action.state.id}}</li>
                     {{-else if is_reduce(action)}}
                     {{-$production = action.production}}
-                    <li>R: {{include('production.template', production: $production)}}</li>
+                    <li>R: {{include('Visualization/production.template', production: $production)}}</li>
                     {{-else}}
                     <li>A</li>
                     {{-end}}
