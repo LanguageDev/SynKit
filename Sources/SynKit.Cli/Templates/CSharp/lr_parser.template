@@ -1,8 +1,14 @@
+{{-SHIFT = 253-}}
+{{-ACCEPT = 254-}}
+{{-ERROR = 255-}}
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Collections.Immutable;
 
 public class Parser
 {
+    private static readonly ImmutableArray<byte> = ImmutableArray.Create();
+
     private readonly Lexer lexer;
     private readonly Stack<int> stateStack = new();
     private readonly Stack<ParseTree> symbolStack = new();
@@ -14,50 +20,6 @@ public class Parser
 
     public ParseTree Parse()
     {
-        this.stateStack.Push(0);
-        var term = this.lexer.Next();
-        this.symbolStack.Push(term);
-        while (true)
-        {
-            var state = this.stateStack.Peek();
-            switch (state)
-            {
-            {{-for si_set in table.state_item_sets}}
-                {{-$state = si_set.state}}
-            case {{$state.id}}:
-                switch (term)
-                {
-                {{-for t in table.terminals}}
-                    {{-$actions = lr_actions(table, $state, t)}}
-                    {{-if $actions.count == 1}}
-                        {{-$action = first($actions)}}
-                case {{t}}:
-                        {{-if is_shift($action)}}
-                    this.stateStack.Push({{$action.state.id}});
-                    term = this.lexer.Next();
-                    this.symbolStack.Push(term);
-                    break;
-                        {{-else if is_reduce($action)}}
-                {
-                            {{-for i in 0..$action.production.right.count}}
-                    var a{{i}} = this.symbolStack.Pop();
-                    this.stateStack.Pop();
-                            {{-end}}
-                    this.stateStack.Push({{lr_goto(table, $state, $action.production.left).id}});
-                    this.symbolStack.Push(/* TODO */);
-                    break;
-                }
-                        {{-else}}
-                    return result; // TODO
-                        {{-end}}
-                    {{-end-}}
-                {{-end}}
-                default: Debug.Fail("Unexpected terminal");
-                }
-                break;
-            {{-end}}
-            default: Debug.Fail("Invalid state");
-            }
-        }
+        
     }
 }

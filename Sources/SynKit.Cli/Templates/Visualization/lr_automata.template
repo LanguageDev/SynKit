@@ -14,20 +14,19 @@ digraph PDA {
     {{-end}}
 
     // Transitions
-    {{-for si_set in table.state_item_sets}}
-        {{-$state = si_set.state}}
+    {{-for state in table.states}}
         {{-for t in table.terminals}}
-            {{-$actions = lr_actions(table, $state, t)}}
+            {{-$actions = lr_actions(table, state, t)}}
             {{-for action in $actions}}
                 {{-if is_shift(action)}}
-    {{$state.id}} -> {{action.state.id}} [label="{{t}}"]
+    {{state.id}} -> {{action.state.id}} [label="{{t}}"]
                 {{-end}}
             {{-end}}
         {{-end}}
         {{-for nt in table.nonterminals}}
-            {{-$to_state = lr_goto(table, $state, nt)}}
+            {{-$to_state = lr_goto(table, state, nt)}}
             {{-if $to_state != null}}
-    {{$state.id}} -> {{$to_state.id}} [label="{{nt}}"]
+    {{state.id}} -> {{$to_state.id}} [label="{{nt}}"]
             {{-end}}
         {{-end}}
     {{-end}}

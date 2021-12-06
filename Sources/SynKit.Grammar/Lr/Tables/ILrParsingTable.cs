@@ -24,6 +24,11 @@ public interface ILrParsingTable
     public IReadOnlyCollection<ILrStateItemSet<ILrItem>> StateItemSets { get; }
 
     /// <summary>
+    /// The states in the table.
+    /// </summary>
+    public IReadOnlyCollection<LrState> States { get; }
+
+    /// <summary>
     /// The LR action table.
     /// </summary>
     public LrActionTable Action { get; }

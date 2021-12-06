@@ -86,14 +86,13 @@
             {{-end}}
         </tr>
         <!-- A row for each state -->
-        {{-for si_set in table.state_item_sets}}
-            {{-$state = si_set.state}}
+        {{-for state in table.states}}
         <tr>
             <!-- State number -->
-            <td>{{$state.id}}</td>
+            <td>{{state.id}}</td>
             <!-- Actions with terminals -->
             {{-for t in table.terminals}}
-                {{-$actions = lr_actions(table, $state, t)}}
+                {{-$actions = lr_actions(table, state, t)}}
             <td{{-if $actions.count > 1}} class="conflict-cell"{{end}}>
                 <ul>
                 {{-for action in $actions}}
@@ -111,7 +110,7 @@
             {{-end}}
             <!-- Goto with nonterminals -->
             {{-for nt in table.nonterminals}}
-                {{-$goto = lr_goto(table, $state, nt)}}
+                {{-$goto = lr_goto(table, state, nt)}}
                 {{-if $goto == null}}
             <td></td>
                 {{-else}}

@@ -92,7 +92,7 @@ internal static class Program
         var result = template.Render(context);
 
         Console.WriteLine(result);
-        File.WriteAllText("table.html", result);
+        //File.WriteAllText("table.html", result);
     }
 
     static ILrParsingTable BuildTestTable2()

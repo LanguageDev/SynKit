@@ -1,4 +1,5 @@
 using SynKit.Grammar.ContextFree;
+using SynKit.Grammar.Internal;
 using SynKit.Grammar.Lr.Items;
 
 namespace SynKit.Grammar.Lr.Tables;
@@ -21,6 +22,9 @@ public sealed class LrParsingTable<TItem> : ILrParsingTable
 
     /// <inheritdoc/>
     IReadOnlyCollection<ILrStateItemSet<ILrItem>> ILrParsingTable.StateItemSets => this.StateItemSets;
+
+    /// <inheritdoc/>
+    public IReadOnlyCollection<LrState> States => this.StateItemSets.SelectCollection(si => si.State);
 
     /// <inheritdoc/>
     public LrActionTable Action { get; }
