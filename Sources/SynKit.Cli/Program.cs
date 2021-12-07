@@ -2,6 +2,7 @@ using Scriban;
 using Scriban.Runtime;
 using SynKit.Cli.Templating;
 using SynKit.Grammar.Ebnf;
+using SynKit.Grammar.Lr;
 using SynKit.Grammar.Lr.Tables;
 
 namespace SynKit.Cli;

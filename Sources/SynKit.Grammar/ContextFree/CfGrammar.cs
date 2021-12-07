@@ -1,3 +1,4 @@
+using SynKit.Collections;
 using SynKit.Grammar.ContextFree.Internal;
 using SynKit.Grammar.Internal;
 using System.Collections.Immutable;
@@ -180,7 +181,9 @@ public sealed partial class CfGrammar
         // Find the initial productions
         var initials = this.GetProductions(Symbol.Nonterminal.Start);
         // Add them to the touched set
-        var touched = initials.Select(p => p.Right).ToHashSet(ListEqualityComparer<Symbol>.Default);
+        var touched = initials
+            .Select(p => p.Right)
+            .ToHashSet<IReadOnlyList<Symbol>>(EqualityComparerUtils.SequenceEqualityComparer<Symbol>());
         // Also add them to the process queue
         var queue = new PriorityQueue<IReadOnlyList<Symbol>, int>();
         foreach (var t in touched) queue.Enqueue(t, t.Count(s => s is Symbol.Nonterminal));
