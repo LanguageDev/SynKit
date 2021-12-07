@@ -7,7 +7,7 @@ namespace SynKit.Grammar.Lr.Tables;
 /// </summary>
 public sealed class LrGotoTable
 {
-    private readonly Dictionary<LrState, Dictionary<Symbol.Nonterminal, LrState>> underlying = new();
+    private readonly Dictionary<(LrState, Symbol.Nonterminal), LrState> underlying = new();
 
     /// <summary>
     /// The state to go to on a nonterminal.
@@ -18,19 +18,13 @@ public sealed class LrGotoTable
     /// <paramref name="nonterminal"/>.</returns>
     public LrState? this[LrState from, Symbol.Nonterminal nonterminal]
     {
-        get => this.underlying.TryGetValue(from, out var onMap)
-            && onMap.TryGetValue(nonterminal, out var to)
-                ? to
-                : null;
+        get => this.underlying.TryGetValue((from, nonterminal), out var to)
+            ? to
+            : null;
         set
         {
-            if (!this.underlying.TryGetValue(from, out var on))
-            {
-                on = new();
-                this.underlying.Add(from, on);
-            }
-            if (value is null) on.Remove(nonterminal);
-            else on[nonterminal] = value.Value;
+            if (value is null) this.underlying.Remove((from, nonterminal));
+            else this.underlying[(from, nonterminal)] = value.Value;
         }
     }
 }

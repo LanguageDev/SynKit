@@ -7,7 +7,7 @@ namespace SynKit.Grammar.Lr.Tables;
 /// </summary>
 public sealed class LrActionTable
 {
-    private readonly Dictionary<LrState, Dictionary<Symbol.Terminal, HashSet<LrAction>>> underlying = new();
+    private readonly Dictionary<(LrState, Symbol.Terminal), HashSet<LrAction>> underlying = new();
 
     /// <summary>
     /// True, if there are conflicts in the table.
@@ -18,9 +18,8 @@ public sealed class LrActionTable
     /// Retrieves the confliction transitions.
     /// </summary>
     public IEnumerable<(LrState State, Symbol.Terminal Terminal)> ConflictingTransitions => this.underlying
-        .SelectMany(kv =>
-            kv.Value.Where(kv2 => kv2.Value.Count > 1)
-                    .Select(kv2 => (kv.Key, kv2.Key)));
+        .Where(kv => kv.Value.Count > 1)
+        .Select(kv => kv.Key);
 
     /// <summary>
     /// Retrieves a collection of actions for a given state and terminal.
@@ -32,15 +31,10 @@ public sealed class LrActionTable
     {
         get
         {
-            if (!this.underlying.TryGetValue(state, out var onMap))
-            {
-                onMap = new();
-                this.underlying.Add(state, onMap);
-            }
-            if (!onMap.TryGetValue(terminal, out var toSet))
+            if (!this.underlying.TryGetValue((state, terminal), out var toSet))
             {
                 toSet = new();
-                onMap.Add(terminal, toSet);
+                this.underlying.Add((state, terminal), toSet);
             }
             return toSet;
         }
