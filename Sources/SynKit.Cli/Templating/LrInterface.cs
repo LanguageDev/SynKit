@@ -22,18 +22,6 @@ public static class LrInterface
         table.Action[state, term];
 
     /// <summary>
-    /// Retrieves all LR actions for a given LR state grouped by the action performed.
-    /// </summary>
-    /// <param name="table">The LR table.</param>
-    /// <param name="state">The current LR state.</param>
-    /// <returns>The actions performed on <paramref name="state"/> with a given terminal, grouped by the action performed.</returns>
-    public static IEnumerable<IGrouping<LrAction, Symbol.Terminal>> LrActionsByAction(ILrParsingTable table, LrState state) => table
-        .Terminals.Select(t => (Actions: table.Action[state, t], Terminal: t))
-        .Where(t => t.Actions.Count >= 1)
-        .Select(t => (Action: t.Actions.First(), Terminal: t.Terminal))
-        .GroupBy(t => t.Action, t => t.Terminal);
-
-    /// <summary>
     /// Retrieves the destination state in the given LR table, when on a given state, after a reduction of a
     /// given nonterminal.
     /// </summary>

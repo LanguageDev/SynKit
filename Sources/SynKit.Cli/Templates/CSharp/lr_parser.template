@@ -1,9 +1,15 @@
-{{-SHIFT = 253-}}
-{{-ACCEPT = 254-}}
-{{-ERROR = 255-}}
+{{-
+# Nonterminal identifiers
+nonterm_ids = {}
+i = 0
+for nt in table.nonterminals
+    nonterm_ids[nt] = i++
+end
+-}}
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Collections.Immutable;
+using System.Diagnostics;
 
 public class Parser
 {
@@ -20,6 +26,17 @@ public class Parser
 
     public ParseTree Parse()
     {
-        
     }
+
+    private int LookupGoto(int state, int nontermId) => (state, nontermId) switch
+    {
+{{-for state in table.states}}
+    {{-for nt in table.nonterminals}}
+        {{-$to = lr_goto(table, state, nt)}}
+        {{-if $to == null}} {{-continue}} {{-end}}
+        ({{state.id}}, {{nonterm_ids[nt]}}) => {{$to.id}},
+    {{-end}}
+{{-end}}
+        _ => throw new InvalidOperationException(),
+    };
 }
