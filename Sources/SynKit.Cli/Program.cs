@@ -78,9 +78,9 @@ internal static class Program
 ");
         var cfGrammar = ebnfGrammar.ToCfGrammar();
 
-        var lr0table = LrParsingTable.Lr0(cfGrammar);
-        var slrtable = LrParsingTable.Slr(cfGrammar);
-        var lalrtable = LrParsingTable.Lalr(cfGrammar);
+        //var lr0table = LrParsingTable.Lr0(cfGrammar);
+        //var slrtable = LrParsingTable.Slr(cfGrammar);
+        //var lalrtable = LrParsingTable.Lalr(cfGrammar);
         var clrtable = LrParsingTable.Clr(cfGrammar);
 
         //TableStats(lr0table);
@@ -90,7 +90,7 @@ internal static class Program
 
         return;
 
-        var table = lalrtable;
+        var table = clrtable;
         var scriptObject1 = new ScriptObject();
         scriptObject1.Add("table", table);
         scriptObject1.Import(typeof(UtilsInterface));

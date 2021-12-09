@@ -1,6 +1,5 @@
 using SynKit.Collections;
 using SynKit.Grammar.ContextFree.Internal;
-using SynKit.Grammar.Internal;
 using System.Collections.Immutable;
 using System.Text;
 
@@ -147,7 +146,7 @@ public sealed partial class CfGrammar
         foreach (var symbol in symbolSequence)
         {
             var firstSym = this.FirstSet(symbol);
-            foreach (var item in firstSym.OfType<Symbol.Terminal>()) first.Add(item);
+            foreach (var item in firstSym) first.Add(item);
             if (!firstSym.Contains(Symbol.Epsilon.Instance))
             {
                 derivesEpsilon = false;
@@ -156,6 +155,7 @@ public sealed partial class CfGrammar
         }
 
         if (derivesEpsilon) first.Add(Symbol.Epsilon.Instance);
+        else first.Remove(Symbol.Epsilon.Instance);
 
         return first;
     }
