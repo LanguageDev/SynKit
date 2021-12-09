@@ -8,6 +8,8 @@ namespace SynKit.Grammar.Lr.Items;
 public sealed record LalrItem(Production Production, int Cursor, IReadOnlySet<Symbol.Terminal> Lookaheads)
     : LrItemBase<LalrItem>(Production, Cursor)
 {
+    private int? hashCode;
+
     /// <inheritdoc/>
     protected override LalrItem MakeWithCursor(int cursor) => new(this.Production, cursor, this.Lookaheads);
 
@@ -20,6 +22,8 @@ public sealed record LalrItem(Production Production, int Cursor, IReadOnlySet<Sy
     /// <inheritdoc/>
     public override int GetHashCode()
     {
+        if (this.hashCode is not null) return this.hashCode.Value;
+
         var h = default(HashCode);
         h.Add(this.Production);
         h.Add(this.Cursor);
@@ -27,7 +31,8 @@ public sealed record LalrItem(Production Production, int Cursor, IReadOnlySet<Sy
         var setHash = 0;
         foreach (var item in this.Lookaheads) setHash ^= item.GetHashCode();
         h.Add(setHash);
-        return h.ToHashCode();
+        this.hashCode = h.ToHashCode();
+        return this.hashCode.Value;
     }
 
     /// <inheritdoc/>
