@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynKit.Text", "SynKit.Text\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynKit.Collections", "SynKit.Collections\SynKit.Collections.csproj", "{9CD4DA94-4F96-49E1-BEE4-5AE1849A4C6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynKit.Collections.Tests", "SynKit.Collections.Tests\SynKit.Collections.Tests.csproj", "{A89AB80A-7722-4415-988E-784C57390697}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SynKit.Collections.Tests", "SynKit.Collections.Tests\SynKit.Collections.Tests.csproj", "{A89AB80A-7722-4415-988E-784C57390697}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynKit.Grammar.Benchmarks", "SynKit.Grammar.Benchmarks\SynKit.Grammar.Benchmarks.csproj", "{51B8B3BC-DDAA-4123-802C-02A4C92A4533}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +64,10 @@ Global
 		{A89AB80A-7722-4415-988E-784C57390697}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A89AB80A-7722-4415-988E-784C57390697}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A89AB80A-7722-4415-988E-784C57390697}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51B8B3BC-DDAA-4123-802C-02A4C92A4533}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51B8B3BC-DDAA-4123-802C-02A4C92A4533}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51B8B3BC-DDAA-4123-802C-02A4C92A4533}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51B8B3BC-DDAA-4123-802C-02A4C92A4533}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

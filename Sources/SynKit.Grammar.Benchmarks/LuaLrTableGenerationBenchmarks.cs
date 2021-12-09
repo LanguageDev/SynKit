@@ -1,15 +1,19 @@
-using Scriban;
-using Scriban.Runtime;
-using SynKit.Cli.Templating;
+using BenchmarkDotNet.Attributes;
+using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Ebnf;
-using SynKit.Grammar.Lr;
 using SynKit.Grammar.Lr.Tables;
 
-namespace SynKit.Cli;
+namespace SynKit.Grammar.Benchmarks;
 
-internal static class Program
+[MarkdownExporter]
+public class LuaLrTableGenerationBenchmarks
 {
-    static void Main(string[] args)
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    private CfGrammar grammar;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+    [GlobalSetup]
+    public void GlobalSetup()
     {
         var ebnfGrammar = EbnfGrammar.Parse(EbnfFlavor.Standard, @"
     chunk ::= block
@@ -76,45 +80,18 @@ internal static class Program
 
     unop ::= ‘-’ | not | ‘#’ | ‘~’
 ");
-        var cfGrammar = ebnfGrammar.ToCfGrammar();
-
-        var lr0table = LrParsingTable.Lr0(cfGrammar);
-        var slrtable = LrParsingTable.Slr(cfGrammar);
-        var lalrtable = LrParsingTable.Lalr(cfGrammar);
-        var clrtable = LrParsingTable.Clr(cfGrammar);
-
-        //TableStats(lr0table);
-        //TableStats(slrtable);
-        //TableStats(lalrtable);
-        //TableStats(clrtable);
-
-        return;
-
-        var table = lalrtable;
-        var scriptObject1 = new ScriptObject();
-        scriptObject1.Add("table", table);
-        scriptObject1.Import(typeof(UtilsInterface));
-        scriptObject1.Import(typeof(LrInterface));
-
-        var context = new TemplateContext();
-        context.PushGlobal(scriptObject1);
-        context.TemplateLoader = new DiskTemplateLoader("Templates");
-
-        var template = Template.Parse(File.ReadAllText("Templates/CSharp/lr_parser.template"));
-        var result = template.Render(context);
-
-        Console.WriteLine(result);
-        //File.WriteAllText("table.html", result);
+        grammar = ebnfGrammar.ToCfGrammar();
     }
 
-    static void TableStats(ILrParsingTable table)
-    {
-        Console.WriteLine($"states: {table.States.Count}");
-        Console.WriteLine($"action table size: {table.States.Count * table.Terminals.Count}");
-        var emptyT = table.Terminals.Sum(t => table.States.Count(s => table.Action[s, t].Count == 0));
-        Console.WriteLine($"    of that empty: {emptyT} ({emptyT / (float)(table.States.Count * table.Terminals.Count)})");
-        Console.WriteLine($"goto table size: {table.States.Count * table.Nonterminals.Count}");
-        var emptyNt = table.Nonterminals.Sum(nt => table.States.Count(s => table.Goto[s, nt] is null));
-        Console.WriteLine($"    of that empty: {emptyNt} ({emptyNt / (float)(table.States.Count * table.Nonterminals.Count)})");
-    }
+    [Benchmark]
+    public ILrParsingTable Lr0() => LrParsingTable.Lr0(this.grammar);
+
+    [Benchmark]
+    public ILrParsingTable Slr() => LrParsingTable.Slr(this.grammar);
+
+    [Benchmark]
+    public ILrParsingTable Lalr() => LrParsingTable.Lalr(this.grammar);
+
+    [Benchmark]
+    public ILrParsingTable Clr() => LrParsingTable.Clr(this.grammar);
 }

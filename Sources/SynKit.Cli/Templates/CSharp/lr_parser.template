@@ -1,4 +1,11 @@
 {{-
+# Terminal identifiers
+term_ids = {}
+i = 0
+for t in table.terminals
+    term_ids[t] = i++
+end
+
 # Nonterminal identifiers
 nonterm_ids = {}
 i = 0
@@ -13,8 +20,6 @@ using System.Diagnostics;
 
 public class Parser
 {
-    private static readonly ImmutableArray<byte> = ImmutableArray.Create();
-
     private readonly Lexer lexer;
     private readonly Stack<int> stateStack = new();
     private readonly Stack<ParseTree> symbolStack = new();
@@ -27,6 +32,11 @@ public class Parser
     public ParseTree Parse()
     {
     }
+
+    private ??? LookupAction(int state, int termId) => (state, termId) switch
+    {
+        _ => throw new InvalidOperationException(),
+    };
 
     private int LookupGoto(int state, int nontermId) => (state, nontermId) switch
     {
