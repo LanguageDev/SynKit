@@ -1,6 +1,7 @@
 using Scriban;
 using Scriban.Runtime;
 using SynKit.Cli.Templating;
+using SynKit.Collections;
 using SynKit.Grammar.Ebnf;
 using SynKit.Grammar.Lr;
 using SynKit.Grammar.Lr.Tables;
@@ -78,15 +79,15 @@ internal static class Program
 ");
         var cfGrammar = ebnfGrammar.ToCfGrammar();
 
-        //var lr0table = LrParsingTable.Lr0(cfGrammar);
-        //var slrtable = LrParsingTable.Slr(cfGrammar);
-        //var lalrtable = LrParsingTable.Lalr(cfGrammar);
+        var lr0table = LrParsingTable.Lr0(cfGrammar);
+        var slrtable = LrParsingTable.Slr(cfGrammar);
+        var lalrtable = LrParsingTable.Lalr(cfGrammar);
         var clrtable = LrParsingTable.Clr(cfGrammar);
 
-        //TableStats(lr0table);
-        //TableStats(slrtable);
-        //TableStats(lalrtable);
-        //TableStats(clrtable);
+        TableStats(lr0table);
+        TableStats(slrtable);
+        TableStats(lalrtable);
+        TableStats(clrtable);
 
         return;
 
@@ -113,8 +114,31 @@ internal static class Program
         Console.WriteLine($"action table size: {table.States.Count * table.Terminals.Count}");
         var emptyT = table.Terminals.Sum(t => table.States.Count(s => table.Action[s, t].Count == 0));
         Console.WriteLine($"    of that empty: {emptyT} ({emptyT / (float)(table.States.Count * table.Terminals.Count)})");
+        Console.WriteLine($"    COMPRESSED: {RleCompressAction(table)}");
+        Console.WriteLine($"    COMPRESSED DEDUP ROWS: {RleCompressActionDedup(table)}");
         Console.WriteLine($"goto table size: {table.States.Count * table.Nonterminals.Count}");
         var emptyNt = table.Nonterminals.Sum(nt => table.States.Count(s => table.Goto[s, nt] is null));
         Console.WriteLine($"    of that empty: {emptyNt} ({emptyNt / (float)(table.States.Count * table.Nonterminals.Count)})");
+    }
+
+    static int RleCompressAction(ILrParsingTable table) => table.States
+        .SelectMany(state => table.Terminals.Select(term => table.Action[state, term]))
+        .RunLengthEncode(EqualityComparerUtils.SetEqualityComparer<LrAction>())
+        .Count();
+
+    static int RleCompressActionDedup(ILrParsingTable table) => DedupRows(table)
+        .SelectMany(x => x)
+        .RunLengthEncode(EqualityComparerUtils.SetEqualityComparer<LrAction>())
+        .Count();
+
+    static IEnumerable<IEnumerable<ICollection<LrAction>>> DedupRows(ILrParsingTable table)
+    {
+        var rows = new HashSet<IEnumerable<ICollection<LrAction>>>(
+            EqualityComparerUtils.SequenceEqualityComparer(EqualityComparerUtils.SetEqualityComparer<LrAction>()));
+        foreach (var state in table.States)
+        {
+            var row = table.Terminals.Select(t => table.Action[state, t]);
+            if (rows.Add(row)) yield return row;
+        }
     }
 }

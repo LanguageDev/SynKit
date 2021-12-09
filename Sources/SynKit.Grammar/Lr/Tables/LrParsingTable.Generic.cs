@@ -1,5 +1,5 @@
+using SynKit.Collections;
 using SynKit.Grammar.ContextFree;
-using SynKit.Grammar.Internal;
 using SynKit.Grammar.Lr.Items;
 
 namespace SynKit.Grammar.Lr.Tables;
