@@ -1,3 +1,4 @@
+using SynKit.Collections;
 using SynKit.Grammar.ContextFree;
 using SynKit.Grammar.Lr;
 using SynKit.Grammar.Lr.Items;
@@ -32,6 +33,35 @@ public static class LrInterface
     /// nonterminal is <paramref name="nonterm"/>.</returns>
     public static LrState? LrGoto(ILrParsingTable table, LrState state, Symbol.Nonterminal nonterm) =>
         table.Goto[state, nonterm];
+
+    /// <summary>
+    /// Deduplicates the rows of the action table by yielding the first state that had the given row content.
+    /// </summary>
+    /// <param name="table">The LR table.</param>
+    /// <returns>The sequence of states where identical rows are assigned to the first occurrences state.</returns>
+    public static IEnumerable<(LrState State, LrState First)> LrDeduplicateActionsRows(ILrParsingTable table)
+    {
+        var rowComparer = EqualityComparerUtils.SequenceEqualityComparer(
+            EqualityComparerUtils.SetEqualityComparer<LrAction>());
+        var foundRows = new Dictionary<IEnumerable<ICollection<LrAction>>, LrState>(rowComparer);
+        foreach (var state in table.States)
+        {
+            var row = table.Terminals.Select(term => table.Action[state, term]);
+            if (!foundRows.TryGetValue(row, out var existing))
+            {
+                foundRows.Add(row, state);
+                existing = state;
+            }
+            yield return (state, existing);
+        }
+    }
+
+    public static IEnumerable<(ICollection<LrAction> Element, int Count)> LrRleActionsRow(ILrParsingTable table, LrState state)
+    {
+        IEqualityComparer<ICollection<LrAction>> comparer = EqualityComparerUtils.SetEqualityComparer<LrAction>();
+        var row = table.Terminals.Select(term => table.Action[state, term]);
+        return row.RunLengthEncode(comparer);
+    }
 
     /// <summary>
     /// Checks, if a given LR action is a shift.
