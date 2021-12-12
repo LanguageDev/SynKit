@@ -13,6 +13,12 @@ end
 term_ids = assign_ids(table.terminals)
 # Nonterminal identifiers
 nonterm_ids = assign_ids(table.nonterminals)
+
+# Deduplicate action states
+dedup_states = lr_deduplicate_actions_rows(table)
+uniq_states = array.sort(array.uniq(array.map(dedup_states, "value")), "id")
+# Row start indices
+action_row_starts = {}
 -}}
 using System;
 using System.Collections.Generic;
@@ -33,6 +39,33 @@ public class Parser
     public ParseTree Parse()
     {
     }
+
+    private static readonly ImmutableArray</*TODO*/> rowData = ImmutableArray.Create(
+        {{$i = 0}}
+{{-for state in uniq_states}}
+        {{-if $i > 0}},
+        {{end}}
+    {{-action_row_starts[state.id] = $i}}
+    {{-$j = 0}}
+    {{-for pair in lr_rle_actions_row(table, state)}}
+        {{-$element = pair.item1}}
+        {{-$repeat = pair.item2}}
+        {{-if $j++ > 0}}, {{end}}
+        {{-}}({{-count($element)}} ACTIONS, {{$repeat}})
+        {{-$i += 1}}
+    {{-end}}
+{{-end}}
+    );
+
+    private static readonly ImmutableArray<int> rowIndices = ImmutableArray.Create(
+{{-$i = 0}}
+{{-for state in table.states}}
+    {{-if $i > 0}}, {{end}}
+        {{-if $i++ % 16 == 0}}
+        {{end}}
+    {{-action_row_starts[dedup_states[state].id]}}
+{{-end}}
+    );
 
     private int LookupGoto(int state, int nontermId) => (state, nontermId) switch
     {

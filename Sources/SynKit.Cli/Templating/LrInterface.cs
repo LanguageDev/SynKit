@@ -38,9 +38,10 @@ public static class LrInterface
     /// Deduplicates the rows of the action table by yielding the first state that had the given row content.
     /// </summary>
     /// <param name="table">The LR table.</param>
-    /// <returns>The sequence of states where identical rows are assigned to the first occurrences state.</returns>
-    public static IEnumerable<(LrState State, LrState First)> LrDeduplicateActionsRows(ILrParsingTable table)
+    /// <returns>The map of states where identical rows are assigned to the first occurrences state.</returns>
+    public static IReadOnlyDictionary<LrState, LrState> LrDeduplicateActionsRows(ILrParsingTable table)
     {
+        var result = new Dictionary<LrState, LrState>();
         var rowComparer = EqualityComparerUtils.SequenceEqualityComparer(
             EqualityComparerUtils.SetEqualityComparer<LrAction>());
         var foundRows = new Dictionary<IEnumerable<ICollection<LrAction>>, LrState>(rowComparer);
@@ -52,8 +53,9 @@ public static class LrInterface
                 foundRows.Add(row, state);
                 existing = state;
             }
-            yield return (state, existing);
+            result.Add(state, existing);
         }
+        return result;
     }
 
     public static IEnumerable<(ICollection<LrAction> Element, int Count)> LrRleActionsRow(ILrParsingTable table, LrState state)
