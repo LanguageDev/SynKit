@@ -50,11 +50,13 @@ public class Parser
     {{-for pair in lr_rle_actions_row(table, state)}}
         {{-$element = pair.item1}}
         {{-$repeat = pair.item2}}
-        {{-if $j++ > 0}}, {{end}}
-        {{-}}({{-count($element)}} ACTIONS, {{$repeat}})
+        {{-if $j > 0}}, {{end}}
+        {{-}}({{$j}}, {{-count($element)}} ACTIONS)
+        {{-$j += $repeat}}
         {{-$i += 1}}
     {{-end}}
 {{-end}}
+{{-$row_data_length = $i}}
     );
 
     private static readonly ImmutableArray<int> rowIndices = ImmutableArray.Create(
@@ -64,10 +66,22 @@ public class Parser
         {{-if $i++ % 16 == 0}}
         {{end}}
     {{-action_row_starts[dedup_states[state].id]}}
-{{-end}}
+{{-end}},
+        {{$row_data_length}}
     );
 
-    private int LookupGoto(int state, int nontermId) => (state, nontermId) switch
+    private static readonly Comparer<(int, /* TODO */)> rowEntryComparer = Comparer<(int, /* TODO */)>.Create((a, b) => a.Item1 - b.Item1);
+
+    private static /*TODO*/ LookupActions(int state, int termId)
+    {
+        var rowFirst = rowIndices[state];
+        var rowCount = rowIndices[state + 1] - rowFirst;
+        var index = rowData.BinarySearch(rowFirst, rowCount, (termId, /* TODO */), rowEntryComparer);
+        if (index < 0) index = ~index;
+        return rowData[index].Item2;
+    }
+
+    private static int LookupGoto(int state, int nontermId) => (state, nontermId) switch
     {
 {{-for state in table.states}}
     {{-for nt in table.nonterminals}}
