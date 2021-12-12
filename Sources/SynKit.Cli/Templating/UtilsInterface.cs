@@ -47,4 +47,15 @@ public static class UtilsInterface
         var enumerator = items.GetEnumerator();
         return enumerator.MoveNext() ? enumerator.Current : null;
     }
+
+    // TODO: Doc
+    public static IDictionary<object, object> AssignIds(IEnumerable items)
+    {
+        var result = new Dictionary<object, object>();
+        foreach (var item in items)
+        {
+            if (!result.ContainsKey(item)) result.Add(item, result.Count);
+        }
+        return result;
+    }
 }

@@ -1,14 +1,4 @@
 {{-
-# Generic function to assign numbers to objects (essentially give them an integer ID)
-func assign_ids(seq)
-    $ids = {}
-    $i = 0
-    for item in seq
-        $ids[item] = $i++
-    end
-    ret $ids
-end
-
 # Terminal identifiers
 term_ids = assign_ids(table.terminals)
 # Nonterminal identifiers
@@ -19,6 +9,9 @@ dedup_states = lr_deduplicate_actions_rows(table)
 uniq_states = array.sort(array.uniq(array.map(dedup_states, "value")), "id")
 # Row start indices
 action_row_starts = {}
+# Reduce actions
+reduce_actions = array.filter(lr_all_actions(table), @is_reduce)
+reduce_action_ids = assign_ids(reduce_actions)
 -}}
 using System;
 using System.Collections.Generic;
@@ -40,6 +33,38 @@ public class Parser
     {
     }
 
+    private bool PerformAction(int actionId, /* TODO */ term)
+    {
+        if (actionId >= 0)
+        {
+            this.stateStack.Push(actionId);
+            this.symbolStack.Push(term);
+            return false;
+        }
+        actionId = -actionId - 1;
+        switch (actionId)
+        {
+{{-for pair in reduce_action_ids}}
+    {{-$prod = pair.key.production}}
+        case {{pair.value}}:
+        {
+        {{-for i in 0..<array.size($prod.right)}}
+            this.stateStack.Pop();
+            var a{{i}} = this.symbolStack.Pop();
+        {{-end}}
+            var result = ConstructTree("{{$prod.left}}"
+        {{-for i in 0..<array.size($prod.right)}}
+            {{-}}, a{{i}}
+        {{-end}}
+        {{-}});
+            break;
+        }
+{{-end}}
+        default: Debug.Fail("Invalid action ID");
+        }
+        return true;
+    }
+
     private static readonly ImmutableArray</*TODO*/> rowData = ImmutableArray.Create(
         {{$i = 0}}
 {{-for state in uniq_states}}
@@ -51,7 +76,7 @@ public class Parser
         {{-$element = pair.item1}}
         {{-$repeat = pair.item2}}
         {{-if $j > 0}}, {{end}}
-        {{-}}({{$j}}, {{-count($element)}} ACTIONS)
+        {{-}}({{$j}}, {{count($element)}} ACTIONS)
         {{-$j += $repeat}}
         {{-$i += 1}}
     {{-end}}

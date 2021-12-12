@@ -58,12 +58,18 @@ public static class LrInterface
         return result;
     }
 
+    // TODO: Doc
     public static IEnumerable<(ICollection<LrAction> Element, int Count)> LrRleActionsRow(ILrParsingTable table, LrState state)
     {
         IEqualityComparer<ICollection<LrAction>> comparer = EqualityComparerUtils.SetEqualityComparer<LrAction>();
         var row = table.Terminals.Select(term => table.Action[state, term]);
         return row.RunLengthEncode(comparer);
     }
+
+    // TODO: Doc
+    public static IEnumerable<LrAction> LrAllActions(ILrParsingTable table) => table.States
+        .SelectMany(state => table.Terminals.SelectMany(term => table.Action[state, term]))
+        .Distinct();
 
     /// <summary>
     /// Checks, if a given LR action is a shift.
