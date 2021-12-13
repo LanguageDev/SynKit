@@ -35,9 +35,14 @@ public class Parser
 
     private bool PerformAction(int actionId, /* TODO */ term)
     {
-        if (actionId >= 0)
+        if (actionId == 0)
         {
-            this.stateStack.Push(actionId);
+            // TODO: Accept
+            return false;
+        }
+        if (actionId > 0)
+        {
+            this.stateStack.Push(actionId - 1);
             this.symbolStack.Push(term);
             return false;
         }
@@ -73,10 +78,22 @@ public class Parser
     {{-action_row_starts[state.id] = $i}}
     {{-$j = 0}}
     {{-for pair in lr_rle_actions_row(table, state)}}
-        {{-$element = pair.item1}}
+        {{-$elements = pair.item1}}
         {{-$repeat = pair.item2}}
         {{-if $j > 0}}, {{end}}
-        {{-}}({{$j}}, {{count($element)}} ACTIONS)
+        {{-}}({{$j}}, ImmutableArray.Create(
+        {{-$k = 0}}
+        {{-for element in $elements}}
+            {{-if $k++ > 0}}, {{end}}
+            {{-if is_shift(element)}}
+                {{-element.state.id + 1}}
+            {{-else if is_reduce(element)}}
+                {{-reduce_action_ids[element]}}
+            {{-else}}
+                {{-}}0
+            {{-end}}
+        {{-end-}}
+        ))
         {{-$j += $repeat}}
         {{-$i += 1}}
     {{-end}}
