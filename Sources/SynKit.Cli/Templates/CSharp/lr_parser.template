@@ -70,7 +70,7 @@ public class Parser
         return true;
     }
 
-    private static readonly ImmutableArray</*TODO*/> rowData = ImmutableArray.Create(
+    private static readonly ImmutableArray<(int Repeat, ImmutableArray<int> Actions)> rowData = ImmutableArray.Create(
         {{$i = 0}}
 {{-for state in uniq_states}}
         {{-if $i > 0}},
@@ -81,19 +81,23 @@ public class Parser
         {{-$elements = pair.item1}}
         {{-$repeat = pair.item2}}
         {{-if $j > 0}}, {{end}}
-        {{-}}({{$j}}, ImmutableArray.Create(
-        {{-$k = 0}}
-        {{-for element in $elements}}
-            {{-if $k++ > 0}}, {{end}}
-            {{-if is_shift(element)}}
-                {{-element.state.id + 1}}
-            {{-else if is_reduce(element)}}
-                {{- -reduce_action_ids[element] + 1}}
-            {{-else}}
-                {{-}}0
-            {{-end}}
-        {{-end-}}
+        {{-if count($elements) == 0}}
+            {{-}}({{$j}}, ImmutableArray<int>.Empty)
+        {{-else}}
+            {{-}}({{$j}}, ImmutableArray.Create(
+            {{-$k = 0}}
+            {{-for element in $elements}}
+                {{-if $k++ > 0}}, {{end}}
+                {{-if is_shift(element)}}
+                    {{-element.state.id + 1}}
+                {{-else if is_reduce(element)}}
+                    {{- -reduce_action_ids[element] + 1}}
+                {{-else}}
+                    {{-}}0
+                {{-end}}
+            {{-end-}}
         ))
+        {{-end}}
         {{-$j += $repeat}}
         {{-$i += 1}}
     {{-end}}
@@ -112,15 +116,15 @@ public class Parser
         {{$row_data_length}}
     );
 
-    private static readonly Comparer<(int, /* TODO */)> rowEntryComparer = Comparer<(int, /* TODO */)>.Create((a, b) => a.Item1 - b.Item1);
+    private static readonly Comparer<(int Repeat, ImmutableArray<int> Actions)> rowEntryComparer = Comparer<(int Repeat, ImmutableArray<int> Actions)>.Create((a, b) => a.Repeat - b.Repeat);
 
-    private static /*TODO*/ LookupActions(int state, int termId)
+    private static ImmutableArray<int> LookupActions(int state, int termId)
     {
         var rowFirst = rowIndices[state];
         var rowCount = rowIndices[state + 1] - rowFirst;
-        var index = rowData.BinarySearch(rowFirst, rowCount, (termId, /* TODO */), rowEntryComparer);
+        var index = rowData.BinarySearch(rowFirst, rowCount, (termId, ImmutableArray<int>.Empty), rowEntryComparer);
         if (index < 0) index = ~index;
-        return rowData[index].Item2;
+        return rowData[index].Actions;
     }
 
     private static int LookupGoto(int state, int nontermId) => (state, nontermId) switch
