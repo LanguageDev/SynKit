@@ -31,21 +31,31 @@ public class Parser
 
     public ParseTree Parse()
     {
+        stateStack.Push(0);
+        var term = this.lexer.Next();
+        while (true)
+        {
+            var state = this.stateStack.Peek();
+            var actions = LookupActions(state, term.Id);
+            if (actions.Length != 1) throw new NotImplementedException("TODO: Nondeterminism");
+            var action = actions[0];
+            this.PerformAction(action, term);
+            if (IsAccept(action)) break;
+            if (IsShift(action)) term = this.lexer.Next();
+        }
+        return this.symbolStack.Peek();
     }
 
-    private bool PerformAction(int actionId, /* TODO */ term)
+    private void PerformAction(int actionId, ParseTree term)
     {
-        if (actionId == 0)
-        {
-            // TODO: Accept
-            return false;
-        }
-        if (actionId > 0)
+        if (IsAccept(actionId)) return;
+        if (IsShift(actionId))
         {
             this.stateStack.Push(actionId - 1);
             this.symbolStack.Push(term);
-            return false;
+            return;
         }
+        // Reduce
         actionId = -actionId - 1;
         switch (actionId)
         {
@@ -62,13 +72,21 @@ public class Parser
             {{-}}, a{{i}}
         {{-end}}
         {{-}});
-            break;
+            this.symbolStack.Push(result);
+            var newState = LookupGoto(this.stateStack.Peek(), {{nonterm_ids[$prod.left]}});
+            this.stateStack.Push(newState);
+            return;
         }
 {{-end}}
-        default: Debug.Fail("Invalid action ID");
+        default:
+            Debug.Fail("Invalid action ID");
+            return;
         }
-        return true;
     }
+
+    private static bool IsShift(int actionId) => actionId > 0;
+    private static bool IsReduce(int actionId) => actionId < 0;
+    private static bool IsAccept(int actionId) => actionId == 0;
 
     private static readonly ImmutableArray<(int Repeat, ImmutableArray<int> Actions)> rowData = ImmutableArray.Create(
         {{$i = 0}}
@@ -81,23 +99,18 @@ public class Parser
         {{-$elements = pair.item1}}
         {{-$repeat = pair.item2}}
         {{-if $j > 0}}, {{end}}
-        {{-if count($elements) == 0}}
-            {{-}}({{$j}}, ImmutableArray<int>.Empty)
-        {{-else}}
-            {{-}}({{$j}}, ImmutableArray.Create(
-            {{-$k = 0}}
-            {{-for element in $elements}}
-                {{-if $k++ > 0}}, {{end}}
-                {{-if is_shift(element)}}
-                    {{-element.state.id + 1}}
-                {{-else if is_reduce(element)}}
-                    {{- -reduce_action_ids[element] + 1}}
-                {{-else}}
-                    {{-}}0
-                {{-end}}
-            {{-end-}}
-        ))
-        {{-end}}
+        {{-}}({{$j}}, ImmutableArray.Create<int>(
+        {{-$k = 0}}
+        {{-for element in $elements}}
+            {{-if $k++ > 0}}, {{end}}
+            {{-if is_shift(element)}}
+                {{-element.state.id + 1}}
+            {{-else if is_reduce(element)}}
+                {{- -reduce_action_ids[element] + 1}}
+            {{-else}}
+                {{-}}0
+            {{-end}}
+        {{-end}}))
         {{-$j += $repeat}}
         {{-$i += 1}}
     {{-end}}
@@ -138,4 +151,7 @@ public class Parser
 {{-end}}
         _ => throw new InvalidOperationException(),
     };
+
+    private static ParseTree ConstructTree(string tag, params ParseTree[] args) =>
+        throw new NotImplementedException(/* TODO */);
 }
