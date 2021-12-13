@@ -88,7 +88,7 @@ public class Parser
             {{-if is_shift(element)}}
                 {{-element.state.id + 1}}
             {{-else if is_reduce(element)}}
-                {{-reduce_action_ids[element]}}
+                {{- -reduce_action_ids[element] + 1}}
             {{-else}}
                 {{-}}0
             {{-end}}
