@@ -91,21 +91,30 @@ internal static class Program
 
         //return;
 
+        var context = new TemplateContext();
+        context.Setup();
         var table = lalrtable;
         var scriptObject1 = new ScriptObject();
         scriptObject1.Add("table", table);
-        scriptObject1.Import(typeof(UtilsInterface));
-        scriptObject1.Import(typeof(LrInterface));
 
-        var context = new TemplateContext();
         context.PushGlobal(scriptObject1);
         context.TemplateLoader = new DiskTemplateLoader("Templates");
 
-        var template = Template.Parse(File.ReadAllText("Templates/CSharp/lr_parser.template"));
-        var result = template.Render(context);
+        // C# code
+        {
+            var template = Template.Parse(File.ReadAllText("Templates/CSharp/lr_parser.template"));
+            var result = template.Render(context);
 
-        Console.WriteLine(result);
-        //File.WriteAllText("table.html", result);
+            Console.WriteLine(result);
+            //File.WriteAllText("table.html", result);
+        }
+        // Table
+        {
+            var template = Template.Parse(File.ReadAllText("Templates/Visualization/lr_parsing_table.template"));
+            var result = template.Render(context);
+
+            File.WriteAllText("table.html", result);
+        }
     }
 
     static void TableStats(ILrParsingTable table)
