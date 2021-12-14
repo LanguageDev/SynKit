@@ -144,7 +144,7 @@ public class Parser
     {
         var (rowFirst, rowCount) = rowIndices[state];
         var index = rowData.BinarySearch(rowFirst, rowCount, (termId, ImmutableArray<int>.Empty), rowEntryComparer);
-        if (index < 0) index = ~index;
+        if (index < 0) index = ~index - 1;
         return rowData[index].Actions;
     }
 
