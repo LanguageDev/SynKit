@@ -37,7 +37,7 @@ public class Parser
 
     public ParseTree Parse()
     {
-        stateStack.Push(0);
+        this.stateStack.Push(0);
         var term = this.lexer.Next();
         while (true)
         {
