@@ -18,6 +18,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
+/*
+Terminal IDs:
+{{-for term in table.terminals}}
+ - {{term}}: {{term_ids[term] + 1}}
+{{-end}}
+*/
 public class Parser
 {
     private readonly Lexer lexer;
@@ -67,7 +73,7 @@ public class Parser
             this.stateStack.Pop();
             var a{{i}} = this.symbolStack.Pop();
         {{-end}}
-            var result = ConstructTree("{{$prod.left}}"
+            var result = ConstructTree({{nonterm_ids[$prod.left]}}, "{{$prod.left}}"
         {{-for i in 0..<array.size($prod.right)}}
             {{-}}, a{{i}}
         {{-end}}
@@ -152,6 +158,6 @@ public class Parser
         _ => throw new InvalidOperationException(),
     };
 
-    private static ParseTree ConstructTree(string tag, params ParseTree[] args) =>
-        throw new NotImplementedException(/* TODO */);
+    private static ParseTree ConstructTree(int id, string tag, params ParseTree[] args) =>
+        new ParseTree(id, tag, args);
 }
