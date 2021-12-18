@@ -100,6 +100,7 @@ internal static class Program
         context.PushGlobal(scriptObject1);
         context.TemplateLoader = new DiskTemplateLoader("Templates");
 
+#if false
         // C# code
         {
             var template = Template.Parse(File.ReadAllText("Templates/CSharp/lr_parser.template"));
@@ -115,6 +116,22 @@ internal static class Program
 
             File.WriteAllText("table.html", result);
         }
+#else
+        var template = Template.Parse(@"
+{{-
+include 'utils.template'
+$a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+-}}
+{{-wrap chunked $a 4-}}
+    {{-wrap join $chunk ', ' !$last-}}
+        {{-$element}}
+    {{-end}}
+{{end}}
+");
+        var result = template.Render(context);
+
+        Console.WriteLine(result);
+#endif
     }
 
     static void TableStats(ILrParsingTable table)

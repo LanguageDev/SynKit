@@ -1,0 +1,37 @@
+{{
+# Yields the array elements in chunks of a given size
+# The subarray is called $chunk
+# Start index of the first element of $chunk is called $i
+# $last signals, if this is the last chunk
+func chunked(arr, chunk_size)
+	while array.size(arr) > 0
+		$chunk = array.limit(arr, chunk_size)
+		arr = array.offset(arr, chunk_size)
+		$last = array.size(arr) == 0
+		$$
+		$i += chunk_size
+	end
+end
+
+# Joins the elements of an array using a given separator
+# The element is called $element
+func join(arr, sep = ", ", trail = false)
+	$first = true
+	for $element in arr
+		if !$first
+			sep
+		end
+		$first = false
+		$$
+	end
+	if trail
+		sep
+	end
+end
+
+# Returns the larger of the 2 arguments
+max(x, y) = x > y ? x : y
+
+# Returns the smaller of the 2 arguments
+min(x, y) = x > y ? y : x
+}}
