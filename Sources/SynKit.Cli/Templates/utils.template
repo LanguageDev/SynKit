@@ -2,13 +2,13 @@
 # Yields the array elements in chunks of a given size
 # The subarray is called $chunk
 # Start index of the first element of $chunk is called $chunk_start
-# $last signals, if this is the last chunk
+# $last_chunk signals, if this is the last chunk
 func chunked(arr, chunk_size)
 	$chunk_start = 0
 	while array.size(arr) > 0
 		$chunk = array.limit(arr, chunk_size)
 		arr = array.offset(arr, chunk_size)
-		$last = array.size(arr) == 0
+		$last_chunk = array.size(arr) == 0
 		$$
 		$chunk_start += chunk_size
 	end
